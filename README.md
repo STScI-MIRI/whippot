@@ -55,10 +55,10 @@ slowly updated:
 5. The SCI and ACQ target positions are intended for use with offset target
    acquisition (that is, TA is performed on a different target from the science
    target).
-  - If performing self-TA, use the same coordinates for the ACQ and SCI position
-    fields.
-  - the `acq_ra` and `acq_dec` fields can be omitted from the initialization
-    dictionary, in which case the SCI target positions will be copied over.
+   - If performing self-TA, use the same coordinates for the ACQ and SCI position
+     fields.
+   - the `acq_ra` and `acq_dec` fields can be omitted from the initialization
+     dictionary, in which case the SCI target positions will be copied over.
 5. If you want your SCI star to land somewhere in the aperture other than the
    reference position, enter this in arcsec into the "Final IDL X" and "Final
    IDL Y" positions. Read these as, "This is the final position (in IDL X and Y)
