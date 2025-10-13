@@ -1,10 +1,12 @@
 # WHIPPOT
+<img src="whippet_sweater.jpg" width="200">
 
 Webb's Helpful IDL Predictor - Positions, Offsets, and Traces!
 
 Author: Jonathan Aguilar (jaguilar@stsci.edu)
 
 Last update: Oct 13, 2025
+
 
 ## Requirements ##
 - ipywidgets
