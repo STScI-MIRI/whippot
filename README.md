@@ -1,5 +1,6 @@
+<img src="logo.png" width="200">
+
 # WHIPPOT
-<img src="whippet_sweater.jpg" width="200">
 
 Webb's Helpful IDL-coordinate Predictor for Positions, Offsets, and Traces!
 
@@ -71,6 +72,7 @@ a notebook refer to the same object. Instead, if you wish to compare the results
 of two calculations, create a new ComputePositions object for each.
 
 The following image shows the GUI interface and corresponding output:
+
 <img src="whippot_output.png" width="800">
 
 ### Explanation of fields ###
