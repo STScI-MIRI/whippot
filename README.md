@@ -215,6 +215,14 @@ the Final IDL X/Y values, but if the ACQ and SCI targets are different, they
 will not be.
 
 
+## Extending WHIPPOT ##
+
+JWST has many different observing modes that could all use different overlays to
+make their plots more informative. An example for extending MIRI WFSS
+functionality is show in `miri_wfss_tools.py`. To add plot overlays for other
+modes, make a similarly-named file in the `whippot` directory. If the number of
+such files becomes "large", we may restructure the directories.
+
 ## License
 
 See `LICENSE.rst` for more information.
