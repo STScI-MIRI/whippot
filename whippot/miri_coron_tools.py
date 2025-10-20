@@ -77,5 +77,5 @@ def quad_boundaries(aperture, kwargs={}):
     y_verts = -np.sin(y_angle) * x_verts0 + np.cos(y_angle) * y_verts0
 
     verts = np.concatenate([x_verts[:, np.newaxis], y_verts[:, np.newaxis]], axis=1)
-    mask = Polygon(verts, alpha=0.5, **kwargs)
+    mask = patches.Polygon(verts, alpha=0.5, **kwargs)
     return mask
