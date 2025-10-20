@@ -534,57 +534,6 @@ def sky_to_idl(
     return idl_coords
 
 
-def work_backwards(
-        slew_from : dict,
-        slew_to : dict,
-        coron_id : str,
-        v3pa : float,
-        offset : tuple[float, float] = (0., 0.),
-        other_stars : list = [],
-) -> list[dict] :
-    """
-    Work backwards to find out where the slew_to star ended up, given sky
-    coordinates for the targets, the commanded offset, and the v3pa value of
-    the observation.
-
-    Parameters
-    ----------
-    slew_from : dict
-      label and coordinate of the ACQ target
-    slew_to : dict
-      label and coordinate of the SCI target
-    coron_id : str
-      Identifier for the desired coronagraphic subarray. Must be one of '1065',
-      '1140', '1550', and 'LYOT'
-    v3pa : float
-      the v3pa angle of the telescope at the aperture reference position, in
-      degrees
-    offset : np.ndarray[float]
-      the x and y offset commanded
-    other_stars : list
-      A list of dicts of other stars in the field that you might want to keep
-      track of, in the same format as slew_from/slew_to
-
-    Output
-    ------
-    idl_positions : list[dict]
-      A list of positions in subarray IDL coordinates provided targets. Each
-      list entry has format {'label': label, 'position': position}.
-
-    """
-    coron_id = coron_id.upper()
-    coro = miri[f'MIRIM_CORON{coron_id}']
-    mask = miri[f'MIRIM_MASK{coron_id}']
-
-    star_positions = [slew_from, slew_to] + other_stars
-
-    idl_coords = sky_to_idl(star_positions,
-                            coro,
-                            v3pa,
-                            idl_offset=offset)
-
-    return idl_coords
-
 #--------------------------------------------#
 #----------------- Plotting -----------------#
 #--------------------------------------------#
