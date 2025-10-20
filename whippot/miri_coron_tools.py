@@ -89,7 +89,7 @@ def quad_boundaries(aperture, kwargs={}):
     mask = patches.Polygon(verts, alpha=0.5, **kwargs)
     return mask
 
-# wrap whippot_plots.plot_aper_idl and plot_aper_sky to show the 4QPM and Lyot masks
+# wrap whippot_plots.plot_aper_idl to show the 4QPM and Lyot masks
 # doing it this way avoids having to copy over all the parameters
 def mask_decorator(func):
     def wrapper(*args, **kwargs):
