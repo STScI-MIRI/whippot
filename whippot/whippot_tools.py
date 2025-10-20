@@ -211,7 +211,7 @@ class ComputePositions():
         ])
         return ui
 
-    def _plot_scene(self, *args):
+    def _plot_scene(self, *args) -> mpl.figure.Figure:
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 10), layout='constrained')
         fig = plot_aper_idl(
             self.get_aper(),
@@ -423,15 +423,6 @@ def compute_offsets(
     offset = -1*np.array(idl_coords[1]['position'])
 
     if verbose == 1:
-        print_offset_information(
-            slew_from=slew_from,
-            slew_to=slew_to,
-            idl_coords=idl_coords,
-            sep=sep,
-            pa=pa,
-            offset=offset
-        )
-    if verbose == 2:
         len_label = max(len(star['label']) for star in idl_coords)
         print("IDL coordinates of all stars after slew:")
         for star in idl_coords:
@@ -439,15 +430,6 @@ def compute_offsets(
             idl = star['position']
             print(f"{label:{len_label}s}:\t{idl[0]+offset[0]:+0.10f}, {idl[1]+offset[1]:+0.10f}")
         print("")
-
-    # if show_plots == True:
-    #     make_plots(
-    #         all_apers,
-    #         star_positions,
-    #         v3pa,
-    #         idl_coords,
-    #         offset,
-    #     )
 
     if return_offsets == True:
         return offset
@@ -575,8 +557,6 @@ def plot_aper_idl(
                    label=star,
                    marker='.',
                    s=50)
-    if aper.AperName[-4:] in ['1065', '1140', '1550']:
-        ax.add_artist(quad_boundaries(aper, kwargs={'fc': 'grey'}))
     if show_legend:
         ax.legend(loc=(1.05, 0.3))
     ax.set_aspect("equal")
@@ -629,70 +609,9 @@ def plot_aper_sky(
                    label=star,
                    marker='.',
                    s=50)
-    if aper.AperName[-4:] in ['1065', '1140', '1550']:
-        ax.add_artist(quad_boundaries(aper, kwargs={'fc': 'grey'}))
     if show_legend:
         ax.legend(loc=(1.05, 0.3))
-    ax.set_aspect("equal")
+    ax.set_aspect("auto")
     ax.grid(True, ls='--', c='grey', alpha=0.5)
     ax.invert_xaxis()
     return fig
-
-
-
-def quad_boundaries(aperture, kwargs={}):
-    """
-    Generate a polygon to plot the 4QPM quadrant boundaries. Stolen from the JWST
-    coronagraphic visibility tool
-
-    Parameters
-    ----------
-    aperture: a pysiaf.Siaf aperture for the 1065, 1140, or 1550 coronagraph
-    kwargs : {} arguments to pass to Polygon
-
-    Output
-    ------
-    mask : matplotlib.patches.Polygon object
-    """
-
-    y_angle = np.deg2rad(aperture.V3IdlYAngle)
-    corners_x, corners_y = aperture.corners(to_frame='idl')
-    min_x, min_y = np.min(corners_x), np.min(corners_y)
-    max_x, max_y = np.max(corners_x), np.max(corners_y)
-
-    width_arcsec = 0.33
-    x_verts0 = np.array([
-        min_x,
-        -width_arcsec,
-        -width_arcsec,
-        width_arcsec,
-        width_arcsec,
-        max_x,
-        max_x,
-        width_arcsec,
-        width_arcsec,
-        -width_arcsec,
-        -width_arcsec,
-        min_x
-    ])
-    y_verts0 = np.array([
-        width_arcsec,
-        width_arcsec,
-        max_y,
-        max_y,
-        width_arcsec,
-        width_arcsec,
-        -width_arcsec,
-        -width_arcsec,
-        min_y,
-        min_y,
-        -width_arcsec,
-        -width_arcsec
-    ])
-    x_verts = np.cos(y_angle) * x_verts0 + np.sin(y_angle) * y_verts0
-    y_verts = -np.sin(y_angle) * x_verts0 + np.cos(y_angle) * y_verts0
-
-    verts = np.concatenate([x_verts[:, np.newaxis], y_verts[:, np.newaxis]], axis=1)
-    mask = Polygon(verts, alpha=0.5, **kwargs)
-    return mask
-
