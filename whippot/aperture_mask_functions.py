@@ -7,6 +7,7 @@ masks are assigned.
 
 """
 import numpy as np
+import matplotlib as mpl
 from matplotlib import patches
 from pysiaf import Siaf
 
