@@ -2,11 +2,22 @@
 
 # WHIPPOT
 
-Webb's Helpful IDL-coordinate Predictor for Positions, Offsets, and Traces!
+Webb's Helpful Ideal-coordinate Predictor for Positions, Offsets, and Traces!
 
 Author: Jonathan Aguilar (jaguilar@stsci.edu)
 
-Last update: Oct 13, 2025
+Last update: Oct 21, 2025
+
+WHIPPOT helps users visualize how their observations will appear on JWST
+instruments by translating their targets' RA and Dec coordinates into the
+detectors' "ideal" coordinate system. Each JWST aperture has it's own "ideal"
+coordinate system that is measured in arcseconds from an origin located at that
+aperture's reference position. This is the coordinate system used in APT to
+provided offset x and y special requirements. An example use case for WHIPPOT
+might be to find out where a star will appear on the detector in one
+observation, and then command the telescope in a second observation to put a
+different star at that same position (for example, to serve as a PSF subtraction
+reference).
 
 
 ## Setup ## 
@@ -121,6 +132,16 @@ and the field above to which they correspond:
 - other\_stars -> Other Stars
 
 
+## Examples, Tips and Tricks ##
+
+### Examples ###
+
+- Offset TA: If, for some reason, you cannot use the built-in APT template for target acquisition on something other than your science target, place the RA and Dec of the ACQ and SCI stars into the corresponding fields and press "Compute Positions". In APT, navigate to the "Special Requirements -> Offset values" field and enter the Offset X and Y output from WHIPPOT.
+- Scene simulation: STPSF (https://stpsf.readthedocs.io/) generally works in ideal coordinates, not detector pixels. You can use WHIPPOT to compute the IDL positions of the objects in some astrophysical scene for a given position angle, and then provide those coordinates to STPSF to simulate the point sources.
+- Spectral trace overlap: Plot spectral traces for a set of sources 
+
+
+
 ### Tips on PA and Positions ###
 
 For targets with high proper motion, the user will have to propagate it
@@ -229,9 +250,10 @@ will not be.
 JWST has many different observing modes that could all use different overlays to
 make their plots more informative. Examples for extending MIRI WFSS
 functionality is shown in `miri_wfss_tools.py` and `miri_coron_tools.py`. To add
-plot overlays for other modes, make a similarly-named file in the `whippot`
-directory. If the number of such files becomes "large", we may restructure the
-directories.
+plot overlays for other modes, make a new file named after the mode and place it
+in the `whippot` directory. It may import *from* `whippot_tools.py`, but should
+not be imported *to* `whippot_tools.py`. If the number of such files becomes
+"large", we may restructure the directories.
 
 ## License
 
