@@ -38,7 +38,7 @@ class ComputePositions():
         # if no acq star coordinates are given, copy the sci star
         self._initial_values['acq_ra'] = initial_values.get("acq_ra", initial_values.get("sci_ra", 0))
         self._initial_values['acq_dec'] = initial_values.get("acq_dec", initial_values.get("sci_dec", 0))
-        self._current_values = {k: v for k, v in initial_values.items()}
+        self.parameter_values = {k: v for k, v in initial_values.items()}
         self.ui = self._make_ui()
         # if an initial dictionary is provided, run the computations.
         if initial_values != {}:
@@ -59,15 +59,18 @@ class ComputePositions():
         except IndexError:
             pass
 
-    def _update_config_dict(self):
-        self._current_values['instr'] = self._instr_picker.value
-        self._current_values['sci_aper'] = self._sci_aper_picker.value
-        self._current_values['pa'] = self._PA_setter.value
-        self._current_values['acq_ra'] = self._acq_pos_widget.children[1].children[0].value
-        self._current_values['acq_dec'] = self._acq_pos_widget.children[1].children[1].value
-        self._current_values['sci_ra'] = self._sci_pos_widget.children[1].children[0].value
-        self._current_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
-        self._current_values['other_stars'] = self._other_stars_widget.value
+    def _update_parameter_dict(self):
+        self.parameter_values['instr'] = self._instr_picker.value
+        self.parameter_values['sci_aper'] = self._sci_aper_picker.value
+        self.parameter_values['pa'] = self._PA_setter.value
+        self.parameter_values['final_idl_x'] = self._slew_to_this_idl.children[1].children[0].value
+        self.parameter_values['final_idl_y'] = self._slew_to_this_idl.children[1].children[1].value
+        self.parameter_values['acq_ra'] = self._acq_pos_widget.children[1].children[0].value
+        self.parameter_values['acq_dec'] = self._acq_pos_widget.children[1].children[1].value
+        self.parameter_values['sci_ra'] = self._sci_pos_widget.children[1].children[0].value
+        self.parameter_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
+        self.parameter_values['other_stars'] = self._other_stars_widget.value
+
 
     def get_aper(self):
         if hasattr(self, "aperture"):
@@ -249,30 +252,36 @@ class ComputePositions():
         return self.ui
 
     def _compute_offsets(self, *args):
+        # first, update the values config dictionary
+        self._update_parameter_dict()
+        acq_ra = self.parameter_values['acq_ra']
+        acq_dec = self.parameter_values['acq_dec']
+        sci_ra = self.parameter_values['sci_ra']
+        sci_dec = self.parameter_values['sci_dec']
+
         acq_pos = {
             'label': 'ACQ',
             'position': SkyCoord(
-                self._acq_pos_widget.children[1].children[0].value,
-                self._acq_pos_widget.children[1].children[1].value,
+                acq_ra, acq_dec,
                 frame='icrs', unit='deg',
             ),
         }
         sci_pos = {
             'label': 'SCI',
             'position': SkyCoord(
-                self._sci_pos_widget.children[1].children[0].value,
-                self._sci_pos_widget.children[1].children[1].value,
+                sci_ra, sci_dec,
                 frame='icrs', unit='deg',
             )
         }
 
         v3pa = self._PA_setter.value
-        self.aperture = Siaf(self._instr_picker.value)[self._sci_aper_picker.value]
+        self.aperture = Siaf(self.parameter_values['instr'])[self.parameter_values['sci_aper']]
 
         other_stars = self._parse_other_stars()
+        # any extra IDL slews after TA is complete
         slew_to_idl = np.array([
-            self._slew_to_this_idl.children[1].children[0].value,
-            self._slew_to_this_idl.children[1].children[1].value,
+            self.parameter_values['final_idl_x'],
+            self.parameter_values['final_idl_y'],
         ])
 
         idl_coords = compute_idl_after_ta(
