@@ -8,18 +8,19 @@ import numpy as np
 from whippot import whippot_tools
 
 def plot_wfss_traces(
-    idl_coords : dict,
-    aper : whippot_tools.pysiaf.JwstAperture,
+    cp : whippot_tools.ComputePositions,
     ax : mpl.axes.Axes = None,
     title : str = '',
     plot_full : bool = False,
     show_mirim_illum : bool = True
 ):
     """
-    Compute the idl coordinates overlaid on the aperture of interest. Add the WFSS traces as well.
-    idl_coords : dict[label, tuple[ra, dec]]
-      usually, one of utils.ComputeOffsets().idl_coords_after_ta or
-      utils.ComputeOffsets().idl_coords_after_slew
+    Compute the idl coordinates overlaid on the aperture of interest when the
+    SCI target is at the reference position. Add the WFSS traces as well.
+
+    Parameters
+    ----------
+    cp : a whippot_tools.ComputePositions instance
     aper : usually the return value of utils.ComputeOffsets().get_aper()
     ax : axis to plot on
     title : title for the axis
@@ -32,10 +33,12 @@ def plot_wfss_traces(
     else:
         fig = ax.get_figure()
     ax.set_title(title)
+
+    aper = cp.get_aper()
     trace_up = 100 * aper.YSciScale
     trace_down = 300 * aper.YSciScale
    
-    for i, (k, coord) in enumerate(idl_coords.items()):
+    for i, (k, coord) in enumerate(cp.idl_coords_after_slew.items()):
         width = 1
         height = trace_up + trace_down
         ll = (coord[0]-width/2, coord[1]-trace_down)

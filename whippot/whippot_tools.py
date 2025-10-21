@@ -285,7 +285,12 @@ class ComputePositions():
             k: v + self.offset_to_sci
             for k, v in self.idl_coords_after_ta.items()
         }
+        # set the aperture attitude matrix to the SCI position
         create_attmat(sci_pos['position'], self.aperture, v3pa, set_matrix=True)
+        # if ACQ and SCI stars are the same, remove the SCI star
+        if (acq_ra == sci_ra) and (acq_dec == sci_dec):
+            self.idl_coords_after_ta.pop("ACQ")
+            self.idl_coords_after_slew.pop("ACQ")
 
         self._output_offset.clear_output()
         self._output_before.clear_output()
@@ -539,18 +544,22 @@ def plot_aper_idl(
     aper.plot(ax=ax, label=False, frame=frame, c='gray', mark_ref=True)
 
     offset = np.array(offset)
+
     star_positions = star_positions.copy()
-    acq_pos = star_positions.pop('ACQ')
-    ax.scatter(acq_pos[0] + offset[0], acq_pos[1] + offset[1],
-               c='k',
-               label=f"ACQ",
-               marker='x',
-               s=100)
-    sci_pos = star_positions.pop("SCI")
-    ax.scatter(*(sci_pos+ offset),
-               label=f"SCI",
-               marker="*",
-               c='k')
+
+    if 'ACQ' in star_positions.keys():
+        acq_pos = star_positions.pop('ACQ')
+        ax.scatter(acq_pos[0] + offset[0], acq_pos[1] + offset[1],
+                   c='k',
+                   label=f"ACQ",
+                   marker='x',
+                   s=100)
+    if 'SCI' in star_positions.keys():
+        sci_pos = star_positions.pop("SCI")
+        ax.scatter(*(sci_pos+ offset),
+                   label=f"SCI",
+                   marker="*",
+                   c='k')
     for star, position in star_positions.items():
         ax.scatter(*(position + offset),
                    # c='k',
@@ -586,21 +595,23 @@ def plot_aper_sky(
 
     offset = np.array(offset)
     star_positions = star_positions.copy()
-    acq_pos = star_positions.pop('ACQ')
-    acq_pos = np.array(acq_pos) + np.array(offset)
-    acq_pos = aper.idl_to_sky(*acq_pos)
-    ax.scatter(*acq_pos,
-               c='k',
-               label=f"ACQ",
-               marker='x',
-               s=100)
-    sci_pos = star_positions.pop("SCI")
-    sci_pos = np.array(sci_pos) + np.array(offset)
-    sci_pos = aper.idl_to_sky(*sci_pos)
-    ax.scatter(*sci_pos,
-               label=f"SCI",
-               marker="*",
-               c='k')
+    if 'ACQ' in star_positions.keys():
+        acq_pos = star_positions.pop('ACQ')
+        acq_pos = np.array(acq_pos) + np.array(offset)
+        acq_pos = aper.idl_to_sky(*acq_pos)
+        ax.scatter(*acq_pos,
+                   c='k',
+                   label=f"ACQ",
+                   marker='x',
+                   s=100)
+    if 'SCI' in star_positions.keys():
+        sci_pos = star_positions.pop("SCI")
+        sci_pos = np.array(sci_pos) + np.array(offset)
+        sci_pos = aper.idl_to_sky(*sci_pos)
+        ax.scatter(*sci_pos,
+                   label=f"SCI",
+                   marker="*",
+                   c='k')
     for star, position in star_positions.items():
         position = np.array(position) + np.array(offset)
         position = aper.idl_to_sky(*position)
@@ -615,3 +626,4 @@ def plot_aper_sky(
     ax.grid(True, ls='--', c='grey', alpha=0.5)
     ax.invert_xaxis()
     return fig
+
