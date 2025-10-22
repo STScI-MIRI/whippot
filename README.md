@@ -37,12 +37,16 @@ There are two ways to use these tools, after downloading the repository:
    - If you plan to make your own modifications, use `pip install -e .` (but you
      should probably fork the repo first)
    - Copy the tutorial notebooks to your working directory.
-2. Nagivate to the `whippot` subfolder, and copy the notebook(s) and the
+2. Nagivate to the `whippot` subfolder, and copy the notebook(s) from `notebooks/` and the
    `whippot_tools.py` scripts to whatever directory you plan to be working in.
    - In this case, the statement to import `whippot_tools` must be changed to
      `import whippot_tools`.
    - These files can also be copied directly from the online repository, without
      downloading the rest.
+   - Note: this mode of usage deprecated, but still available if you switch to
+     the `run_as_script` branch in the git repository. From the github page,
+     locate the branch selection drop-down menu at the top right and select
+     `run_as_script`.
 
 ## All-Instrument Interface Usage ##
 
@@ -136,9 +140,17 @@ and the field above to which they correspond:
 
 ### Examples ###
 
-- Offset TA: If, for some reason, you cannot use the built-in APT template for target acquisition on something other than your science target, place the RA and Dec of the ACQ and SCI stars into the corresponding fields and press "Compute Positions". In APT, navigate to the "Special Requirements -> Offset values" field and enter the Offset X and Y output from WHIPPOT.
-- Scene simulation: STPSF (https://stpsf.readthedocs.io/) generally works in ideal coordinates, not detector pixels. You can use WHIPPOT to compute the IDL positions of the objects in some astrophysical scene for a given position angle, and then provide those coordinates to STPSF to simulate the point sources.
-- Spectral trace overlap: Plot spectral traces for a set of sources 
+- Offset TA: If, for some reason, you cannot use the built-in APT template for
+  target acquisition on something other than your science target, place the RA
+  and Dec of the ACQ and SCI stars into the corresponding fields and press
+  "Compute Positions". In APT, navigate to the "Special Requirements -> Offset
+  values" field and enter the Offset X and Y output from WHIPPOT.
+- Scene simulation: STPSF (https://stpsf.readthedocs.io/) generally works in
+  ideal coordinates, not detector pixels. You can use WHIPPOT to compute the IDL
+  positions of the objects in some astrophysical scene for a given position
+  angle, and then provide those coordinates to STPSF to simulate the point
+  sources.
+- Spectral trace overlap: Plot spectral traces for a set of sources
 
 
 

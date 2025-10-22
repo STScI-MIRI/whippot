@@ -45,7 +45,7 @@ class ComputePositions():
         self.instr = None
         self.aperture = None
         # are we doing TA on the same star or a different star?
-        self.self_ta = True
+        self.SELF_TA = True
         self.ui = self._make_ui()
         # if an initial dictionary is provided, run the computations.
         if initial_values != {}:
@@ -67,6 +67,7 @@ class ComputePositions():
             pass
 
     def _update_parameter_dict(self):
+        # read in the GUI fields to the parameter dictionary
         self.parameter_values['instr'] = self._instr_picker.value
         self.parameter_values['sci_aper'] = self._sci_aper_picker.value
         self.parameter_values['pa'] = self._PA_setter.value
@@ -78,16 +79,16 @@ class ComputePositions():
         self.parameter_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
         self.parameter_values['other_stars'] = self._other_stars_widget.value
 
-        # update object attributes
+        # update various object attributes from the parameter dictionary
         self.instr = Siaf(self.parameter_values['instr'])
         self.aperture = self.instr[self.parameter_values['sci_aper']]
         # set the self-ta flag
         acq_ra, acq_dec = self.parameter_values['acq_ra'], self.parameter_values['acq_dec'] 
         sci_ra, sci_dec = self.parameter_values['sci_ra'], self.parameter_values['sci_dec'] 
         if (acq_ra == sci_ra) and (acq_dec == sci_dec):
-            self.self_ta = True
+            self.SELF_TA = True
         else:
-            self.self_ta = False
+            self.SELF_TA = False
 
 
     def get_aper(self):
@@ -233,7 +234,7 @@ class ComputePositions():
         return ui
 
     def _plot_scene(self, *args) -> mpl.figure.Figure:
-        nrows = 1 if self.self_ta else 2
+        nrows = 1 if self.SELF_TA else 2
         ncols = 2
         fig, axes = plt.subplots(
             nrows=nrows,
@@ -249,7 +250,7 @@ class ComputePositions():
         mask_func = lom.list_of_masks.get(aper.AperName.upper(), None)
 
         i = 0
-        if not self.self_ta:
+        if not self.SELF_TA:
             fig = whippot_plots.plot_aper_idl(
                 self.get_aper(),
                 self.idl_coords_after_ta,
@@ -310,7 +311,6 @@ class ComputePositions():
         }
 
         v3pa = self._PA_setter.value
-        self.aperture = Siaf(self.parameter_values['instr'])[self.parameter_values['sci_aper']]
 
         other_stars = self._parse_other_stars()
         # any extra IDL slews after TA is complete
@@ -332,7 +332,7 @@ class ComputePositions():
         # set the aperture attitude matrix to the SCI position
         create_attmat(sci_pos['position'], self.aperture, v3pa, set_matrix=True)
         # if ACQ and SCI stars are the same, remove the SCI star
-        if self.self_ta == True:
+        if self.SELF_TA == True:
             self.idl_coords_after_ta.pop("ACQ")
             self.idl_coords_after_slew.pop("ACQ")
 
