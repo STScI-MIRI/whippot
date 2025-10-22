@@ -44,6 +44,8 @@ class ComputePositions():
         self.parameter_values = {k: v for k, v in initial_values.items()}
         self.instr = None
         self.aperture = None
+        # are we doing TA on the same star or a different star?
+        self.self_ta = True
         self.ui = self._make_ui()
         # if an initial dictionary is provided, run the computations.
         if initial_values != {}:
@@ -78,7 +80,14 @@ class ComputePositions():
 
         # update object attributes
         self.instr = Siaf(self.parameter_values['instr'])
-        self.aperture = Siaf(self.parameter_values['sci_aper'])
+        self.aperture = self.instr[self.parameter_values['sci_aper']]
+        # set the self-ta flag
+        acq_ra, acq_dec = self.parameter_values['acq_ra'], self.parameter_values['acq_dec'] 
+        sci_ra, sci_dec = self.parameter_values['sci_ra'], self.parameter_values['sci_dec'] 
+        if (acq_ra == sci_ra) and (acq_dec == sci_dec):
+            self.self_ta = True
+        else:
+            self.self_ta = False
 
 
     def get_aper(self):
@@ -224,43 +233,52 @@ class ComputePositions():
         return ui
 
     def _plot_scene(self, *args) -> mpl.figure.Figure:
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 10), layout='constrained')
+        nrows = 1 if self.self_ta else 2
+        ncols = 2
+        fig, axes = plt.subplots(
+            nrows=nrows,
+			ncols=ncols,
+			figsize=(5*ncols, 5*nrows),
+			layout='constrained',
+			squeeze=False
+        )
 
         aper = self.get_aper()
 
         # the function to generate mask patches
         mask_func = lom.list_of_masks.get(aper.AperName.upper(), None)
 
-        fig = whippot_plots.plot_aper_idl(
-            self.get_aper(),
-            self.idl_coords_after_ta,
-            ax = axes[0, 0],
-            title='Before slew (IDL)',
-            show_legend = True,
-            idl_mask=lom.make_mask(mask_func),
-        )
+        i = 0
+        if not self.self_ta:
+            fig = whippot_plots.plot_aper_idl(
+                self.get_aper(),
+                self.idl_coords_after_ta,
+                ax = axes[i, 0],
+                title='ACQ star in center (IDL)',
+                show_legend = True,
+                idl_mask=lom.make_mask(mask_func),
+            )
+            fig = whippot_plots.plot_aper_sky(
+                self.get_aper(),
+                self.idl_coords_after_ta,
+                ax = axes[i, 1],
+                title='ACQ star in center (Sky)',
+            show_legend = False,
+            )
+            i += 1
         fig = whippot_plots.plot_aper_idl(
             self.get_aper(),
             self.idl_coords_after_slew,
-            ax = axes[0, 1],
-            title='After slew (IDL)',
+            ax = axes[i, 0],
+            title='SCI star in center (IDL)',
             show_legend = False,
             idl_mask=lom.make_mask(mask_func),
         )
-
-        fig = whippot_plots.plot_aper_sky(
-            self.get_aper(),
-            self.idl_coords_after_ta,
-            ax = axes[1, 0],
-            title='Before slew (Sky)',
-            show_legend = False,
-        )
-
         fig = whippot_plots.plot_aper_sky(
             self.get_aper(),
             self.idl_coords_after_slew,
-            ax = axes[1, 1],
-            title='After slew (Sky)',
+            ax = axes[i, 1],
+            title='SCI star in center (Sky)',
             show_legend = False,
         )
         return fig
@@ -314,7 +332,7 @@ class ComputePositions():
         # set the aperture attitude matrix to the SCI position
         create_attmat(sci_pos['position'], self.aperture, v3pa, set_matrix=True)
         # if ACQ and SCI stars are the same, remove the SCI star
-        if (acq_ra == sci_ra) and (acq_dec == sci_dec):
+        if self.self_ta == True:
             self.idl_coords_after_ta.pop("ACQ")
             self.idl_coords_after_slew.pop("ACQ")
 
