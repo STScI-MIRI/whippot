@@ -18,10 +18,11 @@ import ipywidgets as widgets
 #------------------------------------------------------#
 
 # define user interface
-instruments = ['NIRCAM', 'NIRSPEC', 'NIRISS', 'MIRI', 'FGS']
+instruments_jwst = ['NIRCAM', 'NIRSPEC', 'NIRISS', 'MIRI', 'FGS']
+instruments_hst = ['HST']
 
 class ComputePositions():
-    def __init__(self, initial_values={}):
+    def __init__(self, initial_values={}, observatory='JWST'):
         """
         Generate the Position and Offset Computation GUI.
         Can initialize from a dictionary containing the entries (e.g.):
@@ -35,6 +36,7 @@ class ComputePositions():
         }
         """
         self._initial_values = initial_values
+        self.observatory = observatory
         # if no acq star coordinates are given, copy the sci star
         self._initial_values['acq_ra'] = initial_values.get("acq_ra", initial_values.get("sci_ra", 0))
         self._initial_values['acq_dec'] = initial_values.get("acq_dec", initial_values.get("sci_dec", 0))
@@ -117,10 +119,11 @@ class ComputePositions():
             other_stars = stars
         return other_stars
 
-    def _make_widgets(self, initial_values={}):
+    def _make_widgets(self, initial_values={}, observatory='JWST'):
         """
         Container method for making and initializing the widgets
         """
+        instruments = instruments_jwst if observatory=='JWST' else instruments_hst
         self._instr_picker = widgets.Dropdown(
             options = instruments,
             value = initial_values.get('instr', instruments[0]).upper(),
@@ -181,7 +184,7 @@ class ComputePositions():
         self._output_after = widgets.Output()
 
     def _make_ui(self):
-        self._make_widgets(self._initial_values)
+        self._make_widgets(self._initial_values, observatory=self.observatory)
         grid = widgets.GridspecLayout(
             n_rows=9, n_columns=3,
             style=dict(background='white')
