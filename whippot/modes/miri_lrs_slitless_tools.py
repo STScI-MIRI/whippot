@@ -13,7 +13,7 @@ def plot_traces(
     title : str = '',
     plot_full : bool = False,
     show_mirim_illum : bool = True
-):
+) -> mpl.figure.Figure:
     """
     Compute the idl coordinates overlaid on the aperture of interest when the
     SCI target is at the reference position. Add the WFSS traces as well.
@@ -35,12 +35,14 @@ def plot_traces(
     ax.set_title(title)
 
     aper = cp.get_aper()
-    trace_up = 100 * aper.YSciScale
+    # trace size reference: Andreea Petric, personal communication
+    trace_up = 100 * aper.YSciScale 
     trace_down = 300 * aper.YSciScale
    
     for i, (k, coord) in enumerate(cp.idl_coords_after_slew.items()):
-        width = 1
-        height = trace_up + trace_down
+        # plot each trace as a Rectangle, defining the height, width, and bottom corner
+        height, width = trace_up + trace_down, 1
+        # ll -> lower left corner
         ll = (coord[0]-width/2, coord[1]-trace_down)
         trace = mpl.patches.Rectangle(ll, width, height, facecolor=f'C0', alpha=0.5)
         ax.add_patch(trace)

@@ -200,6 +200,17 @@ in the telescope can be found here:
 https://jwst-docs.stsci.edu/jwst-observatory-characteristics/jwst-observatory-coordinate-system-and-field-of-regard/
 .
 
+## Extending WHIPPOT ##
+
+JWST has many different observing modes that could all use different overlays to
+make their plots more informative. Examples for extending MIRI WFSS
+functionality are shown in `miri_wfss_tools.py` and `miri_coron_tools.py`. Users
+are welcome to contribute their own mode-specific modules! Make a new file named
+after the mode and place it in the `whippot/modes/` directory. It may import
+*from* `whippot_tools.py`, but should not be imported *to* `whippot_tools.py`.
+If the number of such files becomes "large", we may restructure the directories.
+
+
 ## FAQs for creating your APT program ##
 
 ### How do I choose my acquisition target? ###
@@ -257,16 +268,6 @@ the Final IDL X/Y values, but if the ACQ and SCI targets are different, they
 will not be.
 
 
-## Extending WHIPPOT ##
-
-JWST has many different observing modes that could all use different overlays to
-make their plots more informative. Examples for extending MIRI WFSS
-functionality is shown in `miri_wfss_tools.py` and `miri_coron_tools.py`. To add
-plot overlays for other modes, make a new file named after the mode and place it
-in the `whippot` directory. It may import *from* `whippot_tools.py`, but should
-not be imported *to* `whippot_tools.py`. If the number of such files becomes
-"large", we may restructure the directories.
-
 ## License
 
 See `LICENSE.rst` for more information.
@@ -302,3 +303,8 @@ the errors and assumptions that seasoned contributors have glossed over.
 `PyCon talk <https://www.youtube.com/watch?v=6Uj746j9Heo>`_, and was adapted by
 `whippot` based on its use in the README file for the
 `MetPy project <https://github.com/Unidata/MetPy>`_.
+
+## We get by with a little help from our friends
+- The NIRCam and MIRI coronagraph masks are taken from the JWST Coronagraph Visibility Tool
+  - https://github.com/spacetelescope/jwst_coronagraph_visibility
+  - Authors: Christopher Stark, Joseph Long, J. Brendan Hagan, Mees Fix and Bryony Nickson
