@@ -223,7 +223,7 @@ class ComputePositions():
         aper = self.get_aper()
 
         # the function to generate mask patches
-        mask_func = lom.list_of_masks.get(aper.AperName.lower(), None)
+        mask_func = lom.list_of_masks.get(aper.AperName.upper(), None)
 
         fig = whippot_plots.plot_aper_idl(
             self.get_aper(),

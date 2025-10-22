@@ -22,18 +22,18 @@ list_of_masks = {}
 
 # MIRI coronagraphs
 # use the CORON apertures for all masks
-list_of_masks['mirim_coronlyot'] = (amf.miri_lyot_mask, Siaf("MIRI")['MIRIM_CORONLYOT'])
-list_of_masks['mirim_masklyot'] = list_of_masks['mirim_coronlyot']
-list_of_masks['mirim_fulllyot'] = list_of_masks['mirim_coronlyot']
-list_of_masks['mirim_coron1065'] = (amf.miri_4qpm_mask, Siaf("MIRI")['MIRIM_CORON1065'])
-list_of_masks['mirim_mask1065'] = list_of_masks['mirim_coron1065']
-list_of_masks['mirim_full1065'] = list_of_masks['mirim_coron1065']
-list_of_masks['mirim_coron1140'] = (amf.miri_4qpm_mask, Siaf("MIRI")['MIRIM_CORON1140'])
-list_of_masks['mirim_mask1140'] = list_of_masks['mirim_coron1140']
-list_of_masks['mirim_full1140'] = list_of_masks['mirim_coron1140']
-list_of_masks['mirim_coron1550'] = (amf.miri_4qpm_mask, Siaf("MIRI")['MIRIM_CORON1550'])
-list_of_masks['mirim_mask1550'] = list_of_masks['mirim_coron1550']
-list_of_masks['mirim_full1550'] = list_of_masks['mirim_coron1550']
+list_of_masks['MIRIM_CORONLYOT'] = (amf.miri_lyot_mask, Siaf("MIRI")['MIRIM_CORONLYOT'])
+list_of_masks['MIRIM_MASKLYOT'] = list_of_masks['MIRIM_CORONLYOT']
+list_of_masks['MIRIM_FULLLYOT'] = list_of_masks['MIRIM_CORONLYOT']
+list_of_masks['MIRIM_CORON1065'] = (amf.miri_4qpm_mask, Siaf("MIRI")['MIRIM_CORON1065'])
+list_of_masks['MIRIM_MASK1065'] = list_of_masks['MIRIM_CORON1065']
+list_of_masks['MIRIM_FULL1065'] = list_of_masks['MIRIM_CORON1065']
+list_of_masks['MIRIM_CORON1140'] = (amf.miri_4qpm_mask, Siaf("MIRI")['MIRIM_CORON1140'])
+list_of_masks['MIRIM_MASK1140'] = list_of_masks['MIRIM_CORON1140']
+list_of_masks['MIRIM_FULL1140'] = list_of_masks['MIRIM_CORON1140']
+list_of_masks['MIRIM_CORON1550'] = (amf.miri_4qpm_mask, Siaf("MIRI")['MIRIM_CORON1550'])
+list_of_masks['MIRIM_MASK1550'] = list_of_masks['MIRIM_CORON1550']
+list_of_masks['MIRIM_FULL1550'] = list_of_masks['MIRIM_CORON1550']
 
 # NIRCam coronagraphs
 list_of_masks['NRCA2_MASK210R'] = (amf.nrc_coron_mask, Siaf("NIRcam")['NRCA2_MASK210R'])

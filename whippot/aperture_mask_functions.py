@@ -112,7 +112,7 @@ def nrc_coron_mask(aperture, kwargs={}):
         if 'LWB' in aperture_name:
             thin_extent_arcsec = 0.58 * (2 / 4)
             thick_extent_arcsec = 0.58 * (6 / 4)
-            x_verts *= -1  # flip LWB left to right
+            # x_verts *= -1  # flip LWB left to right
         elif 'SWB' in aperture_name:
             thin_extent_arcsec = 0.27 * (2 / 4)
             thick_extent_arcsec = 0.27 * (6 / 4)
@@ -129,3 +129,5 @@ def nrc_coron_mask(aperture, kwargs={}):
         verts = np.concatenate([x_idl_verts[:, np.newaxis], y_idl_verts[:, np.newaxis]], axis=1)
         patch = patches.Polygon(verts, alpha=0.5)
         mask_artists.append(patch)
+    mask = mpl.collections.PatchCollection(mask_artists, **kwargs)
+    return mask
