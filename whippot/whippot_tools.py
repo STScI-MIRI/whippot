@@ -30,7 +30,7 @@ class ComputePositions():
         Can initialize from a dictionary containing the entries (e.g.):
         initial_values={
           'instr': 'MIRI',
-          'sci_aper': 'MIRIM_MASK1550',
+          'sci_aper': 'MIRIM_CORON1550',
           'pa': 180.,
           'acq_ra' = 90., 'acq_dec' = 90.,
           'sci_ra' = 91., 'sci_dec' = 89.,
@@ -42,6 +42,8 @@ class ComputePositions():
         self._initial_values['acq_ra'] = initial_values.get("acq_ra", initial_values.get("sci_ra", 0))
         self._initial_values['acq_dec'] = initial_values.get("acq_dec", initial_values.get("sci_dec", 0))
         self.parameter_values = {k: v for k, v in initial_values.items()}
+        self.instr = None
+        self.aperture = None
         self.ui = self._make_ui()
         # if an initial dictionary is provided, run the computations.
         if initial_values != {}:
@@ -73,6 +75,10 @@ class ComputePositions():
         self.parameter_values['sci_ra'] = self._sci_pos_widget.children[1].children[0].value
         self.parameter_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
         self.parameter_values['other_stars'] = self._other_stars_widget.value
+
+        # update object attributes
+        self.instr = Siaf(self.parameter_values['instr'])
+        self.aperture = Siaf(self.parameter_values['sci_aper'])
 
 
     def get_aper(self):
