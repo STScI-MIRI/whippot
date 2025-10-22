@@ -567,3 +567,28 @@ def sky_to_idl(
         pos = star['position']
         idl_coords.append({'label': label, 'position': np.array(aper.sky_to_idl(pos.ra.deg, pos.dec.deg))})
     return idl_coords
+
+
+def transform_aper_footprint(
+    aper_from,
+    aper_to,
+    to_frame='idl',
+    **patch_kwargs,
+) -> mpl.patches.Patch:
+    """
+    Translate an aperture footprint to the IDL, SCI, or DET frame of another aperture
+    """
+    corners = aper_to.convert(
+        *aper_from.corners("tel"),
+        from_frame="tel",
+        to_frame=to_frame
+    )
+    default_kwargs = dict(fill=False, ec='gray')
+    default_kwargs.update(patch_kwargs)
+    footprint = mpl.patches.Rectangle(
+        xy = np.min(corners, axis=1),
+        width = np.diff(corners[0]).max(),
+        height = np.diff(corners[1]).max(),
+        **default_kwargs,
+    )
+    return footprint
