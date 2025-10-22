@@ -59,23 +59,26 @@ def plot_aper_idl(
 
     offset = np.array(offset)
     star_positions = star_positions.copy()
-    acq_pos = star_positions.pop('ACQ')
-    ax.scatter(acq_pos[0] + offset[0], acq_pos[1] + offset[1],
-               c='k',
-               label=f"ACQ",
-               marker='x',
-               s=100)
-    sci_pos = star_positions.pop("SCI")
-    ax.scatter(*(sci_pos+ offset),
-               label=f"SCI",
-               marker="*",
-               c='k')
+    if 'ACQ' in star_positions.keys():
+        acq_pos = star_positions.pop('ACQ')
+        ax.scatter(acq_pos[0] + offset[0], acq_pos[1] + offset[1],
+                   c='k',
+                   label=f"ACQ",
+                   marker='x',
+                   s=100)
+    if 'SCI' in star_positions.keys():
+        sci_pos = star_positions.pop("SCI")
+        ax.scatter(*(sci_pos+ offset),
+                   label=f"SCI",
+                   marker="*",
+                   c='k')
     for star, position in star_positions.items():
         ax.scatter(*(position + offset),
                    # c='k',
                    label=star,
                    marker='.',
                    s=50)
+
     if show_legend:
         ax.legend(loc=(1.05, 0.3))
     ax.set_aspect("equal")
@@ -106,29 +109,32 @@ def plot_aper_sky(
 
     offset = np.array(offset)
     star_positions = star_positions.copy()
-    acq_pos = star_positions.pop('ACQ')
-    acq_pos = np.array(acq_pos) + np.array(offset)
-    acq_pos = aper.idl_to_sky(*acq_pos)
-    ax.scatter(*acq_pos,
-               c='k',
-               label=f"ACQ",
-               marker='x',
-               s=100)
-    sci_pos = star_positions.pop("SCI")
-    sci_pos = np.array(sci_pos) + np.array(offset)
-    sci_pos = aper.idl_to_sky(*sci_pos)
-    ax.scatter(*sci_pos,
-               label=f"SCI",
-               marker="*",
-               c='k')
+    if 'ACQ' in star_positions.keys():
+        acq_pos = star_positions.pop('ACQ')
+        acq_pos = np.array(acq_pos) + np.array(offset)
+        acq_pos = aper.idl_to_sky(*acq_pos)
+        ax.scatter(*acq_pos,
+                   c='k',
+                   label=f"ACQ",
+                   marker='x',
+                   s=100)
+    if 'SCI' in star_positions.keys():
+        sci_pos = star_positions.pop("SCI")
+        sci_pos = np.array(sci_pos) + np.array(offset)
+        sci_pos = aper.idl_to_sky(*sci_pos)
+        ax.scatter(*sci_pos,
+                   label=f"SCI",
+                   marker="*",
+                   c='k')
     for star, position in star_positions.items():
         position = np.array(position) + np.array(offset)
         position = aper.idl_to_sky(*position)
-        ax.scatter(*position, 
+        ax.scatter(*position,
                    # c='k',
                    label=star,
                    marker='.',
                    s=50)
+
     if show_legend:
         ax.legend(loc=(1.05, 0.3))
     ax.set_aspect("equal")
