@@ -14,7 +14,8 @@ from whippot import aperture_mask_functions as amf
 
 # use this function to generate the mask
 
-make_mask = lambda value: None if value is None else value[0](value[1], kwargs={'fc': 'grey'})
+mask_kwargs = {'fc': 'grey'}
+make_mask = lambda value: None if value is None else value[0](value[1], kwargs=mask_kwargs)
 
 # Format: {aperture_name: mask}
 list_of_masks = {}

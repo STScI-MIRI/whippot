@@ -256,7 +256,7 @@ class ComputePositions():
                 self.idl_coords_after_ta,
                 ax = axes[i, 0],
                 title='ACQ star in center (IDL)',
-                show_legend = True,
+                show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
             )
             fig = whippot_plots.plot_aper_sky(
@@ -264,7 +264,8 @@ class ComputePositions():
                 self.idl_coords_after_ta,
                 ax = axes[i, 1],
                 title='ACQ star in center (Sky)',
-            show_legend = False,
+                show_legend = False,
+                idl_mask=lom.make_mask(mask_func),
             )
             i += 1
         fig = whippot_plots.plot_aper_idl(
@@ -272,7 +273,7 @@ class ComputePositions():
             self.idl_coords_after_slew,
             ax = axes[i, 0],
             title='SCI star in center (IDL)',
-            show_legend = False,
+            show_legend = True,
             idl_mask=lom.make_mask(mask_func),
         )
         fig = whippot_plots.plot_aper_sky(
@@ -281,13 +282,14 @@ class ComputePositions():
             ax = axes[i, 1],
             title='SCI star in center (Sky)',
             show_legend = False,
+            idl_mask=lom.make_mask(mask_func),
         )
         return fig
 
     def show_ui(self):
         return self.ui
 
-    def _compute_offsets(self, *args):
+    def compute_positions(self, *args):
         # first, update the values config dictionary
         self._update_parameter_dict()
         acq_ra = self.parameter_values['acq_ra']

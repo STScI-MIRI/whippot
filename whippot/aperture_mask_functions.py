@@ -5,14 +5,15 @@ File format: this file is divided into two halves. The bottom half contains
 functions that define the masks. The top half contains a dictionary where those
 masks are assigned.
 
+All plot-generating functions must return PathPatch objects
 """
 import numpy as np
 import matplotlib as mpl
-from matplotlib import patches
+from matplotlib import patches, path
 from pysiaf import Siaf
 
 # MIRI
-def miri_lyot_mask(aperture, kwargs={}):
+def miri_lyot_mask(aperture, kwargs={}) -> patches.PathPatch:
     """Generate a polygon to show the Lyot mask and support bar"""
 
     y_angle = np.deg2rad(aperture.V3IdlYAngle)
@@ -24,14 +25,18 @@ def miri_lyot_mask(aperture, kwargs={}):
     # draw a rectangle and then rotate it around the fiducial point
     ll = [-width/2, aperture.corners('idl')[1].min()]
     height = aperture.YSciSize * aperture.YSciScale
-    bar = patches.Rectangle(ll, width=width, height=height, rotation_point='center', angle=-aperture.V3IdlYAngle, **kwargs)
-    spot = patches.Circle((0, 0), radius=2.16, **kwargs)
-    # verts = np.concatenate([x_verts[:, np.newaxis], y_verts[:, np.newaxis]], axis=1)
-    # mask = Polygon(verts, alpha=0.5, **kwargs)
-    mask = mpl.collections.PatchCollection([bar, spot], **kwargs)
+    bar = patches.Rectangle(ll, width=width, height=height, rotation_point='center', angle=-aperture.V3IdlYAngle)
+    bar = path.Path(list(bar.get_verts()), closed=True )
+    spot = path.Path.circle((0, 0), radius=2.16)
+    # mask = mpl.collections.PatchCollection([bar, spot], **kwargs)
+    compound_vertices = spot.vertices.tolist() + bar.vertices.tolist()
+    compound_codes = spot.codes.tolist() + bar.codes.tolist()
+    compound_path = path.Path(compound_vertices, compound_codes)
+    kwargs['ec'] = kwargs.get('ec', 'none')
+    mask = patches.PathPatch(compound_path, **kwargs)
     return mask
 
-def miri_4qpm_mask(aperture, kwargs={}):
+def miri_4qpm_mask(aperture, kwargs={}) -> patches.PathPatch:
     """
     Generate a polygon to plot the 4QPM quadrant boundaries. Stolen from the JWST
     coronagraphic visibility tool
@@ -83,11 +88,13 @@ def miri_4qpm_mask(aperture, kwargs={}):
     x_verts = np.cos(y_angle) * x_verts0 + np.sin(y_angle) * y_verts0
     y_verts = -np.sin(y_angle) * x_verts0 + np.cos(y_angle) * y_verts0
 
-    verts = np.concatenate([x_verts[:, np.newaxis], y_verts[:, np.newaxis]], axis=1)
-    mask = patches.Polygon(verts, alpha=0.5, **kwargs)
+    verts = list(np.concatenate([x_verts[:, np.newaxis], y_verts[:, np.newaxis]], axis=1))
+    verts.append(verts[0])
+    kwargs['ec'] = kwargs.get('ec', 'none')
+    mask = patches.PathPatch(path.Path(verts, closed=True), **kwargs)
     return mask
 
-def nrc_coron_mask(aperture, kwargs={}):
+def nrc_coron_mask(aperture, kwargs={}) -> patches.PathPatch:
     """
     Define the masks for the NIRCam coronagraphic apertures
     "Borrowed" from the JWST Coronagraphic Visibility Tool
@@ -106,7 +113,8 @@ def nrc_coron_mask(aperture, kwargs={}):
         else:
             raise RuntimeError("Invalid mask!")
         # make a circle
-        mask_artists.append(patches.Circle((0, 0), radius=radius_arcsec, alpha=0.5))
+        # mask_artists.append(patches.Circle((0, 0), radius=radius_arcsec, alpha=0.5))
+        mask_artists.append(path.Path.circle((0., 0.), radius=radius_arcsec))
     else:
         x_verts = x_sci_size / 2 * np.array([-1, 1, 1, -1])
         if 'LWB' in aperture_name:
@@ -127,7 +135,8 @@ def nrc_coron_mask(aperture, kwargs={}):
         ])
         x_idl_verts, y_idl_verts = aperture.sci_to_idl(x_verts + aperture.XSciRef, y_verts + aperture.YSciRef)
         verts = np.concatenate([x_idl_verts[:, np.newaxis], y_idl_verts[:, np.newaxis]], axis=1)
-        patch = patches.Polygon(verts, alpha=0.5)
+        # patch = patches.Polygon(verts, alpha=0.5)
+        patch = path.Path(verts, closed=True)
         mask_artists.append(patch)
     mask = mpl.collections.PatchCollection(mask_artists, **kwargs)
     return mask
