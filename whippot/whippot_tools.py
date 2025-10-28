@@ -49,7 +49,7 @@ class ComputePositions():
         self.ui = self._make_ui()
         # if an initial dictionary is provided, run the computations.
         if initial_values != {}:
-            self._compute_offsets()
+            self.compute_positions()
 
     def _update_apers(self, *args, initial_values={}):
         self._acq_apers = [i for i in Siaf(self._instr_picker.value).apernames if '_TA' in i]
@@ -182,18 +182,18 @@ class ComputePositions():
             disabled=False,
         )
 
-        self._compute_offsets_button = widgets.Button(
-            description='Compute offset',
+        self._compute_positions_button = widgets.Button(
+            description='Compute positions',
             disabled=False,
             button_style='success'
         )
-        self._compute_offsets_button.on_click(self._compute_offsets)
+        self._compute_positions_button.on_click(self.compute_positions)
         self._plot_scene_button = widgets.Button(
             description = 'Plot scenes',
             disabled=False,
             button_style = 'info'
         )
-        self._plot_scene_button.on_click(self._plot_scene)
+        self._plot_scene_button.on_click(self.plot_scene)
 
         self._output_offset = widgets.Output()
         self._output_before = widgets.Output()
@@ -220,7 +220,7 @@ class ComputePositions():
         grid[1:-1, 2] = self._other_stars_widget
 
         # place the buttons at the bottom of the central column
-        grid[-1, 1] = widgets.HBox([self._compute_offsets_button, self._plot_scene_button])
+        grid[-1, 1] = widgets.HBox([self._compute_positions_button, self._plot_scene_button])
         output_grid = widgets.GridspecLayout(
             n_rows=1, n_columns=3,
         )
@@ -233,7 +233,14 @@ class ComputePositions():
         ])
         return ui
 
-    def _plot_scene(self, *args) -> mpl.figure.Figure:
+    def plot_scene(self, *args) -> mpl.figure.Figure:
+        """
+        Plot the detector- and sky-oriented scenes with the footprint of the selected aperture
+
+        Parameters
+        ----------
+        *args is a dummy argument used to make the function compatible with ipywidgets calls
+        """
         nrows = 1 if self.SELF_TA else 2
         ncols = 2
         fig, axes = plt.subplots(
