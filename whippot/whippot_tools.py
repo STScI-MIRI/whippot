@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import matplotlib.ticker as ticker
-from matplotlib.patches import Polygon
+from matplotlib import patches, path
 
 from astropy.coordinates import SkyCoord
 from astropy import units
@@ -601,3 +601,34 @@ def transform_aper_footprint(
         **default_kwargs,
     )
     return footprint
+
+def transform_patch_footprint(
+    patch : mpl.patches.Patch,
+    aper : pysiaf.aperture.JwstAperture,
+    frame_from : str = 'idl',
+    frame_to : str = 'sky',
+) -> mpl.patches.Patch :
+    """
+    Take a patch and transform its vertices to a different coordinate system
+
+    Parameters
+    ----------
+    patch : mpl.patches.Patch
+    aper : pysiaf.aperture.JwstAperture
+    frame_from : str = 'idl'
+    frame_to : str = 'sky'
+
+    Output
+    ------
+    transf_patch : mpl.patches.Patch
+
+    """
+    p = patch.get_path()
+    codes = patch.get_path().codes
+    x, y = patch.get_verts().T
+    transf_verts = np.array(aper.convert(x, y, frame_from, frame_to)).T
+    transf_patch = patches.PathPatch(
+        path.Path(list(transf_verts), codes=codes),
+    )
+    return transf_patch
+
