@@ -587,18 +587,18 @@ def transform_aper_footprint(
     """
     Translate an aperture footprint to the IDL, SCI, or DET frame of another aperture
     """
-    corners = aper_to.convert(
-        *aper_from.corners("tel"),
+    corners = aper_from.corners("tel")
+    vertices = list(np.array(aper_to.convert(
+        *corners,
         from_frame="tel",
         to_frame=to_frame
-    )
+    )).T)
+    vertices.append(vertices[0])
     default_kwargs = dict(fill=False, ec='gray')
     default_kwargs.update(patch_kwargs)
-    footprint = mpl.patches.Rectangle(
-        xy = np.min(corners, axis=1),
-        width = np.diff(corners[0]).max(),
-        height = np.diff(corners[1]).max(),
-        **default_kwargs,
+    footprint = mpl.patches.PathPatch(
+        mpl.patches.Path(vertices=vertices, closed=True),
+        **default_kwargs
     )
     return footprint
 
@@ -607,6 +607,7 @@ def transform_patch_footprint(
     aper : pysiaf.aperture.JwstAperture,
     frame_from : str = 'idl',
     frame_to : str = 'sky',
+    **patch_kwargs,
 ) -> mpl.patches.Patch :
     """
     Take a patch and transform its vertices to a different coordinate system
@@ -629,6 +630,7 @@ def transform_patch_footprint(
     transf_verts = np.array(aper.convert(x, y, frame_from, frame_to)).T
     transf_patch = patches.PathPatch(
         path.Path(list(transf_verts), codes=codes),
+        **patch_kwargs,
     )
     return transf_patch
 

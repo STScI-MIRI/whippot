@@ -134,7 +134,6 @@ def plot_aper_sky(
         properties.pop('path')
         sky_mask = mpl.patches.PathPatch(mpl.path.Path(vertices, closed=True))
         sky_mask.set(**lom.mask_kwargs)
-        print(sky_mask.get_verts())
         ax.add_artist(sky_mask)
 
     offset = np.array(offset)
@@ -171,3 +170,33 @@ def plot_aper_sky(
     ax.grid(True, ls='--', c='grey', alpha=0.5)
     ax.invert_xaxis()
     return fig
+
+def include_patches_in_axes(ax, list_of_patches, invert_ra_axis=False) -> None:
+    """
+    Adjust axis limits to include patches
+
+    invert_ra_axis : False
+      if plotting RA on the x-axis, invert it
+    """
+    (xmin, xmax), (ymin, ymax) = ax.get_xlim(), ax.get_ylim()
+    if invert_ra_axis:
+        xmin, xmax = xmax, xmin
+
+    verts = np.concatenate([p.get_verts() for p in list_of_patches])
+    vxmin, vymin = np.min(verts, axis=0)
+    vxmax, vymax = np.max(verts, axis=0)
+    xmin = np.min([xmin, vxmin])
+    ymin = np.min([ymin, vymin])
+    xmax = np.max([xmax, vxmax])
+    ymax = np.max([ymax, vymax])
+
+    # add a 10% buffer on either side of the mins and maxes
+    dx = np.abs(xmax-xmin)
+    dy = np.abs(ymax-ymin)
+    ax.set_ylim(ymin - 0.1*dy, ymax + 0.1*dy)
+    ax.set_xlim(xmin - 0.1*dx, xmax + 0.1*dy)
+
+    if invert_ra_axis:
+        ax.invert_xaxis()
+
+    return 

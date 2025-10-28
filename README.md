@@ -17,7 +17,8 @@ provided offset x and y special requirements. An example use case for WHIPPOT
 might be to find out where a star will appear on the detector in one
 observation, and then command the telescope in a second observation to put a
 different star at that same position (for example, to serve as a PSF subtraction
-reference).
+reference). This is essentially a user-friendly wrapper around the very useful
+and very powerful pySIAF library (<https://pysiaf.readthedocs.io/>).
 
 
 ## Setup ## 
@@ -135,6 +136,15 @@ and the field above to which they correspond:
 - acq\_dec -> ACQ target position / Dec [deg]
 - other\_stars -> Other Stars
 
+### Scripting mode ###
+
+This can be used in scripting mode, without the UI, simply by not calling the
+GUI. The initialization dictionary will trigger the
+`ComputePositions.compute_positions()` method that populates the
+`idl_coords_after_ta` and `idl_coords_after_slew` attributes. To show the scene
+plots, simply call `plot_scene()`, which returns a reference to the generated
+figure. `compute_positions()` reads from the `ComputePositions.parameter_values`
+dictionary, so that can be modified to re-compute with different values.
 
 ## Examples, Tips and Tricks ##
 
@@ -210,6 +220,9 @@ after the mode and place it in the `whippot/modes/` directory. It may import
 *from* `whippot_tools.py`, but should not be imported *to* `whippot_tools.py`.
 If the number of such files becomes "large", we may restructure the directories.
 
+The best way to extend WHIPPOT is to subclass the
+`whippot_tools.ComputePositions` class and override its methods and attributes.
+Examples can be seen in the files referenced above.
 
 ## FAQs for creating your APT program ##
 
