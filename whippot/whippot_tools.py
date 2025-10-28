@@ -37,7 +37,7 @@ class ComputePositions():
           'other_stars' = '',
         }
         """
-        self._initial_values = initial_values
+        self._initial_values = initial_values.copy()
         # if no acq star coordinates are given, copy the sci star
         self._initial_values['acq_ra'] = initial_values.get("acq_ra", initial_values.get("sci_ra", 0))
         self._initial_values['acq_dec'] = initial_values.get("acq_dec", initial_values.get("sci_dec", 0))
