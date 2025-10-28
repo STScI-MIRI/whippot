@@ -52,15 +52,9 @@ class ComputePositions():
             self.compute_positions()
 
     def _update_apers(self, *args, initial_values={}):
-        self._acq_apers = [i for i in Siaf(self._instr_picker.value).apernames if '_TA' in i]
         self._sci_apers = [i for i in Siaf(self._instr_picker.value).apernames]
-        self._acq_aper_picker.options = self._acq_apers
         self._sci_aper_picker.options = self._sci_apers
 
-        try:
-            self._acq_aper_picker.value = initial_values.get('acq_aper', self._acq_apers[0]).upper()
-        except IndexError:
-            pass
         try:
             self._sci_aper_picker.value = initial_values.get('sci_aper', self._sci_apers[0]).upper()
         except IndexError:
@@ -78,6 +72,7 @@ class ComputePositions():
         self.parameter_values['sci_ra'] = self._sci_pos_widget.children[1].children[0].value
         self.parameter_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
         self.parameter_values['other_stars'] = self._other_stars_widget.value
+        self.parameter_values['show_all_apers'] = self._show_all_apers.value
 
         # update various object attributes from the parameter dictionary
         self.instr = Siaf(self.parameter_values['instr'])
@@ -136,23 +131,30 @@ class ComputePositions():
             other_stars = stars
         return other_stars
 
-    def _make_widgets(self, initial_values={}):
+    def _make_widgets(self, widget_values={}):
         """
         Container method for making and initializing the widgets
         """
         self._instr_picker = widgets.Dropdown(
             options = instruments,
-            value = initial_values.get('instr', instruments[0]).upper(),
+            value = widget_values.get('instr', instruments[0]).upper(),
             description='Instrument'
         )
         self._instr_picker.observe(self._update_apers)
-        # set self.acq_apers and self.sci_apers
-        self._acq_aper_picker = widgets.Dropdown(description='ACQ aperture')
+        # set self.sci_apers
         self._sci_aper_picker = widgets.Dropdown(description='SCI aperture')
-        self._update_apers(initial_values=initial_values)
+        self._show_all_apers = widgets.Checkbox(
+            value = widget_values.get('show_all_apers', False),
+            description='Show all apertures',
+            disabled=False,
+            indent=False
+        )
+        self._update_apers(initial_values=widget_values)
+        # to show or not to show the full aperture list
+
         # Position Angle
         self._PA_setter = widgets.BoundedFloatText(
-            value=initial_values.get("pa", 0),
+            value=widget_values.get("pa", 0),
             min=0.,
             max=360.,
             step=0.1,
@@ -161,22 +163,22 @@ class ComputePositions():
         )
         self._slew_to_this_idl = self._make_final_idl_widget(
             "Slew to this IDL",
-            initial_x = initial_values.get("final_idl_x", 0.),
-            initial_y = initial_values.get("final_idl_y", 0.),
+            initial_x = widget_values.get("final_idl_x", 0.),
+            initial_y = widget_values.get("final_idl_y", 0.),
         )
         # star positions
         self._acq_pos_widget = self._make_starpos_widget(
             "ACQ target position",
-            initial_ra = initial_values.get("acq_ra", 0.),
-            initial_dec = initial_values.get("acq_dec", 0.),
+            initial_ra = widget_values.get("acq_ra", 0.),
+            initial_dec = widget_values.get("acq_dec", 0.),
         )
         self._sci_pos_widget = self._make_starpos_widget(
             "SCI target position",
-            initial_ra = initial_values.get("sci_ra", 0.),
-            initial_dec = initial_values.get("sci_dec", 0.)
+            initial_ra = widget_values.get("sci_ra", 0.),
+            initial_dec = widget_values.get("sci_dec", 0.)
         )
         self._other_stars_widget = widgets.Textarea(
-            value=initial_values.get("other_stars", '').strip(),
+            value=widget_values.get("other_stars", '').strip(),
             placeholder='label : (ra.deg, dec.deg)',
             description='Other stars: ',
             disabled=False,
@@ -200,7 +202,7 @@ class ComputePositions():
         self._output_after = widgets.Output()
 
     def _make_ui(self):
-        self._make_widgets(self._initial_values)
+        self._make_widgets(self.parameter_values)
         grid = widgets.GridspecLayout(
             n_rows=9, n_columns=3,
             style=dict(background='white')
@@ -209,7 +211,8 @@ class ComputePositions():
             value="IDL Coordinate and Offset TA Calculator".upper(),
             layout = widgets.Layout(display='flex', justify_content='center'),
         )
-        grid[1, 0] = self._instr_picker
+        # grid[1, 0] = self._instr_picker
+        grid[1, 0] = widgets.HBox([self._instr_picker, self._show_all_apers])
         grid[2, 0] = self._sci_aper_picker
         grid[4, 0] = self._PA_setter
         grid[5:8, 0] = self._slew_to_this_idl
