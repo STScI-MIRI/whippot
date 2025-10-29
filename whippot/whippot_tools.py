@@ -32,16 +32,18 @@ class ComputePositions():
           'instr': 'MIRI',
           'sci_aper': 'MIRIM_CORON1550',
           'pa': 180.,
-          'acq_ra' = 90., 'acq_dec' = 90.,
-          'sci_ra' = 91., 'sci_dec' = 89.,
-          'other_stars' = '',
+          'acq_ra' : 90., 'acq_dec' : 90.,
+          'sci_ra' : 91., 'sci_dec' : 89.,
+          'other_stars' : '',
+          'exclude_roi' : True,
         }
         """
         self._initial_values = initial_values.copy()
         # if no acq star coordinates are given, copy the sci star
         self._initial_values['acq_ra'] = initial_values.get("acq_ra", initial_values.get("sci_ra", 0))
         self._initial_values['acq_dec'] = initial_values.get("acq_dec", initial_values.get("sci_dec", 0))
-        self.parameter_values = {k: v for k, v in initial_values.items()}
+        self.parameter_values = self.default_parameters()
+        self.parameter_values.update(initial_values)
         self.instr = None
         self.aperture = None
         # are we doing TA on the same star or a different star?
@@ -51,10 +53,28 @@ class ComputePositions():
         if initial_values != {}:
             self.compute_positions()
 
-    def _update_apers(self, *args, initial_values={}):
-        self._sci_apers = [i for i in Siaf(self._instr_picker.value).apernames]
-        self._sci_aper_picker.options = self._sci_apers
+    def default_parameters():
+        defaults = {
+          'instr': 'MIRI',
+          'sci_aper': 'MIRIM_CORON1550',
+          'pa': 0.,
+          'acq_ra' : 0., 'acq_dec' : 0.,
+          'sci_ra' : 0., 'sci_dec' : 0.,
+          'other_stars' : '',
+          'exclude_roi' : True,
+        }
+        return defaults
 
+    def filter_apertures(self):
+        apertures = Siaf(self._instr_picker.value).apertures
+        apernames = [name for name, aper in apertures.items()]
+        if self._exclude_roi_chkbx.value:
+            apernames = [name for name, aper in apertures.items() if aper.AperType != 'ROI']
+        return apernames
+
+    def _update_apers(self, *args, initial_values={}):
+        self._sci_apers = self.filter_apertures()#[i for i in Siaf(self._instr_picker.value).apernames]
+        self._sci_aper_picker.options = self._sci_apers
         try:
             self._sci_aper_picker.value = initial_values.get('sci_aper', self._sci_apers[0]).upper()
         except IndexError:
