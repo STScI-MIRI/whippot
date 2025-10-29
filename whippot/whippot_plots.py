@@ -54,7 +54,7 @@ def plot_aper_idl(
     frame = 'idl' # options are: tel (telescope), det (detector), sci (aperture)
     if title != '':
         ax.set_title(title)
-    aper.plot(ax=ax, label=False, frame=frame, c='black', mark_ref=True)
+    aper.plot(ax=ax, label=False, frame=frame, c='gray', mark_ref=True)
     if idl_mask is not None:
         ax.add_artist(idl_mask)
 

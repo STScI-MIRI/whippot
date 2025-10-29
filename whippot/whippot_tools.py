@@ -65,20 +65,21 @@ class ComputePositions():
         }
         return defaults
 
-    def filter_apertures(self):
+    def filter_aperture_options(self):
         apertures = Siaf(self._instr_picker.value).apertures
-        apernames = [name for name, aper in apertures.items()]
+        apernames = [name.upper() for name, aper in apertures.items()]
         if self._exclude_roi_chkbx.value:
-            apernames = [name for name, aper in apertures.items() if aper.AperType != 'ROI']
+            apernames = [name.upper() for name, aper in apertures.items() if aper.AperType != 'ROI']
         return apernames
 
-    def _update_apers(self, *args, initial_values={}):
-        self._sci_apers = self.filter_apertures()#[i for i in Siaf(self._instr_picker.value).apernames]
+    def _update_aperture_options(self, *args):
+        self._sci_apers = self.filter_aperture_options()#[i for i in Siaf(self._instr_picker.value).apernames]
         self._sci_aper_picker.options = self._sci_apers
-        try:
-            self._sci_aper_picker.value = initial_values.get('sci_aper', self._sci_apers[0]).upper()
-        except IndexError:
-            pass
+        curr_aper = self.parameter_values['sci_aper'].upper()
+        if curr_aper in self._sci_apers:
+            self._sci_aper_picker.value = curr_aper
+        else:
+            self._sci_aper_picker.value = self._sci_apers[0]
 
     def _update_parameter_dict(self):
         # read in the GUI fields to the parameter dictionary
@@ -105,6 +106,29 @@ class ComputePositions():
         else:
             self.SELF_TA = False
 
+    def _update_widgets_from_parameters(self):
+        self._instr_picker.value = self.parameter_values['instr']
+        self._sci_aper_picker.value = self.parameter_values['sci_aper']
+        self._PA_setter.value = self.parameter_values['pa']
+        self._slew_to_this_idl.children[1].children[0].value = self.parameter_values['final_idl_x']
+        self._slew_to_this_idl.children[1].children[1].value = self.parameter_values['final_idl_y']
+        self._acq_pos_widget.children[1].children[0].value = self.parameter_values['acq_ra']
+        self._acq_pos_widget.children[1].children[1].value = self.parameter_values['acq_dec']
+        self._sci_pos_widget.children[1].children[0].value = self.parameter_values['sci_ra']
+        self._sci_pos_widget.children[1].children[1].value = self.parameter_values['sci_dec']
+        self._other_stars_widget.value = self.parameter_values['other_stars']
+        self._exclude_roi_chkbx.value = self.parameter_values['exclude_roi']
+
+        # update various object attributes from the parameter dictionary
+        self.instr = Siaf(self.parameter_values['instr'])
+        self.aperture = self.instr[self.parameter_values['sci_aper']]
+        # set the self-ta flag
+        acq_ra, acq_dec = self.parameter_values['acq_ra'], self.parameter_values['acq_dec'] 
+        sci_ra, sci_dec = self.parameter_values['sci_ra'], self.parameter_values['sci_dec'] 
+        if (acq_ra == sci_ra) and (acq_dec == sci_dec):
+            self.SELF_TA = True
+        else:
+            self.SELF_TA = False
 
     def get_aper(self):
         if hasattr(self, "aperture"):
@@ -139,8 +163,8 @@ class ComputePositions():
     def _parse_other_stars(self) -> list:
         """Parse the entries in the other_stars_widget and return a list"""
         other_stars = []
-        if self._other_stars_widget.value != '':
-            stars = self._other_stars_widget.value.strip().split("\n")
+        if self.parameter_values['other_stars'] != '':
+            stars = self.parameter_values['other_stars'].strip().split("\n")
             stars = [dict(zip(['label', 'position'], i.split(":"))) for i in stars]
             for star in stars:
                 position = SkyCoord(
@@ -161,18 +185,18 @@ class ComputePositions():
             description='Instrument'
         )
         # run update_apers when instr_picker changes
-        self._instr_picker.observe(self._update_apers)
+        self._instr_picker.observe(self._update_aperture_options)
         # set self.sci_apers
-        self._sci_aper_picker = widgets.Dropdown(description='SCI aperture')
+        self._sci_aper_picker = widgets.Dropdown(description='Aperture')
         self._exclude_roi_chkbx = widgets.Checkbox(
             value = widget_values.get('exclude_roi', True),
             description='Exclude ROI apers',
             disabled=False,
             indent=False
         )
-        self._exclude_roi_chkbx.observe(self._update_apers)
+        self._exclude_roi_chkbx.observe(self._update_aperture_options)
         # initialize the apers
-        self._update_apers(initial_values=widget_values)
+        self._update_aperture_options()
         # to show or not to show the full aperture list
 
         # Position Angle
@@ -279,6 +303,8 @@ class ComputePositions():
 
         aper = self.get_aper()
 
+        fig.suptitle(aper.AperName)
+
         # the function to generate mask patches
         mask_func = lom.list_of_masks.get(aper.AperName.upper(), None)
 
@@ -288,7 +314,7 @@ class ComputePositions():
                 self.get_aper(),
                 self.idl_coords_after_ta,
                 ax = axes[i, 0],
-                title='ACQ star in center (IDL)',
+                title='Detector-oriented view\n(ACQ star centered)',
                 show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
             )
@@ -296,7 +322,7 @@ class ComputePositions():
                 self.get_aper(),
                 self.idl_coords_after_ta,
                 ax = axes[i, 1],
-                title='ACQ star in center (Sky)',
+                title='Sky-oriented view\n(ACQ star centered)',
                 show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
             )
@@ -305,7 +331,7 @@ class ComputePositions():
             self.get_aper(),
             self.idl_coords_after_slew,
             ax = axes[i, 0],
-            title='SCI star in center (IDL)',
+            title='Detector-oriented view',
             show_legend = True,
             idl_mask=lom.make_mask(mask_func),
         )
@@ -313,7 +339,7 @@ class ComputePositions():
             self.get_aper(),
             self.idl_coords_after_slew,
             ax = axes[i, 1],
-            title='SCI star in center (Sky)',
+            title='Sky-oriented view',
             show_legend = False,
             idl_mask=lom.make_mask(mask_func),
         )
@@ -322,9 +348,10 @@ class ComputePositions():
     def show_ui(self):
         return self.ui
 
-    def compute_positions(self, *args):
-        # first, update the values config dictionary
-        self._update_parameter_dict()
+    def compute_positions(self, *args, update_params_from_widgets=True):
+        # first, update either the values config dictionary or the widgets
+        if update_params_from_widgets:
+            self._update_parameter_dict()
         acq_ra = self.parameter_values['acq_ra']
         acq_dec = self.parameter_values['acq_dec']
         sci_ra = self.parameter_values['sci_ra']
@@ -345,7 +372,7 @@ class ComputePositions():
             )
         }
 
-        v3pa = self._PA_setter.value
+        v3pa = self.parameter_values['pa']
 
         other_stars = self._parse_other_stars()
         # any extra IDL slews after TA is complete

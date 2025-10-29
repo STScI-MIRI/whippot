@@ -17,6 +17,8 @@ default_init = {
     'sci_aper': 'mirim_illum', 
     'pa': 290.,
     'sci_ra': sources['SCI'].ra.deg, 'sci_dec': sources['SCI'].dec.deg,
+    'other_stars': '',
+    'exclude_roi': True,
 }
 # add a multi-line string of the other stars, copied from the cell above
 default_init['other_stars'] = "\n".join(f"{k}: ({v.ra.deg}, {v.dec.deg})" for k, v in sources.items())
