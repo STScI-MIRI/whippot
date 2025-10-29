@@ -43,7 +43,7 @@ class ComputePositions():
         self._initial_values['acq_ra'] = initial_values.get("acq_ra", initial_values.get("sci_ra", 0))
         self._initial_values['acq_dec'] = initial_values.get("acq_dec", initial_values.get("sci_dec", 0))
         self.parameter_values = self.default_parameters()
-        self.parameter_values.update(initial_values)
+        self.parameter_values.update(self._initial_values)
         self.instr = None
         self.aperture = None
         # are we doing TA on the same star or a different star?
@@ -53,7 +53,7 @@ class ComputePositions():
         if initial_values != {}:
             self.compute_positions()
 
-    def default_parameters():
+    def default_parameters(self) -> dict:
         defaults = {
           'instr': 'MIRI',
           'sci_aper': 'MIRIM_CORON1550',
@@ -613,13 +613,12 @@ def transform_aper_footprint(
     """
     Translate an aperture footprint to the IDL, SCI, or DET frame of another aperture
     """
-    corners = aper_from.corners("tel")
-    vertices = list(np.array(aper_to.convert(
-        *corners,
-        from_frame="tel",
+    vertices = aper_from.closed_polygon_points("tel", rederive=False)
+    vertices  = list(zip(*aper_to.convert(
+        *vertices,
+        from_frame='tel',
         to_frame=to_frame
-    )).T)
-    vertices.append(vertices[0])
+    )))
     default_kwargs = dict(fill=False, ec='gray')
     default_kwargs.update(patch_kwargs)
     footprint = mpl.patches.PathPatch(
