@@ -72,7 +72,7 @@ class ComputePositions():
         self.parameter_values['sci_ra'] = self._sci_pos_widget.children[1].children[0].value
         self.parameter_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
         self.parameter_values['other_stars'] = self._other_stars_widget.value
-        self.parameter_values['show_all_apers'] = self._show_all_apers.value
+        self.parameter_values['exclude_roi'] = self._exclude_roi_chkbx.value
 
         # update various object attributes from the parameter dictionary
         self.instr = Siaf(self.parameter_values['instr'])
@@ -140,15 +140,18 @@ class ComputePositions():
             value = widget_values.get('instr', instruments[0]).upper(),
             description='Instrument'
         )
+        # run update_apers when instr_picker changes
         self._instr_picker.observe(self._update_apers)
         # set self.sci_apers
         self._sci_aper_picker = widgets.Dropdown(description='SCI aperture')
-        self._show_all_apers = widgets.Checkbox(
-            value = widget_values.get('show_all_apers', False),
-            description='Show all apertures',
+        self._exclude_roi_chkbx = widgets.Checkbox(
+            value = widget_values.get('exclude_roi', True),
+            description='Exclude ROI apers',
             disabled=False,
             indent=False
         )
+        self._exclude_roi_chkbx.observe(self._update_apers)
+        # initialize the apers
         self._update_apers(initial_values=widget_values)
         # to show or not to show the full aperture list
 
@@ -212,7 +215,7 @@ class ComputePositions():
             layout = widgets.Layout(display='flex', justify_content='center'),
         )
         # grid[1, 0] = self._instr_picker
-        grid[1, 0] = widgets.HBox([self._instr_picker, self._show_all_apers])
+        grid[1, 0] = widgets.HBox([self._instr_picker, self._exclude_roi_chkbx])
         grid[2, 0] = self._sci_aper_picker
         grid[4, 0] = self._PA_setter
         grid[5:8, 0] = self._slew_to_this_idl
