@@ -321,3 +321,7 @@ the errors and assumptions that seasoned contributors have glossed over.
 - The NIRCam and MIRI coronagraph masks are taken from the JWST Coronagraph Visibility Tool
   - https://github.com/spacetelescope/jwst_coronagraph_visibility
   - Authors: Christopher Stark, Joseph Long, J. Brendan Hagan, Mees Fix and Bryony Nickson
+- Marshall Perrin's code contributions to the [breads](https://github.com/jruffio/breads) package
+  - Specifically here: https://github.com/jruffio/breads/blob/main/breads/jwst_tools/planning.py
+  - Code for showing diffraction spikes
+  - Inspiration for displaying IFU apertures
