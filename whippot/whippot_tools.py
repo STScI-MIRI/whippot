@@ -34,6 +34,7 @@ class ComputePositions():
           'sci_ra' : 91., 'sci_dec' : 89.,
           'other_stars' : '',
           'exclude_roi' : True,
+          'show_diffraction_spikes': False,
         }
         """
         self._initial_values = initial_values.copy()
@@ -60,7 +61,9 @@ class ComputePositions():
           'sci_ra' : 0., 'sci_dec' : 0.,
           'other_stars' : '',
           'exclude_roi' : True,
+          'show_diffraction_spikes' : False,
         }
+
         return defaults
 
     def filter_aperture_options(self):
@@ -92,6 +95,7 @@ class ComputePositions():
         self.parameter_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
         self.parameter_values['other_stars'] = self._other_stars_widget.value
         self.parameter_values['exclude_roi'] = self._exclude_roi_chkbx.value
+        self.parameter_values['show_diffraction_spikes'] = self._show_spikes_chkbx.value
 
         # update various object attributes from the parameter dictionary
         self.instr = Siaf(self.parameter_values['instr'])
@@ -116,6 +120,7 @@ class ComputePositions():
         self._sci_pos_widget.children[1].children[1].value = self.parameter_values['sci_dec']
         self._other_stars_widget.value = self.parameter_values['other_stars']
         self._exclude_roi_chkbx.value = self.parameter_values['exclude_roi']
+        self._show_spikes_chkbx.value = self.parameter_values['show_diffraction_spikes']
 
         # update various object attributes from the parameter dictionary
         self.instr = Siaf(self.parameter_values['instr'])
@@ -138,7 +143,7 @@ class ComputePositions():
     def _make_starpos_widget(self, title, initial_ra=0., initial_dec=0.):
         """Make a widget for getting a star's RA and Dec"""
         star_widget = widgets.VBox([
-            widgets.Label(value=title),
+            widgets.Label(value=title, layout = widgets.Layout(display='flex', justify_content='center')),
             widgets.VBox([
                 widgets.FloatText(value=initial_ra, description='RA [deg]', disabled=False),
                 widgets.FloatText(value=initial_dec, description='Dec [deg]', disabled=False)
@@ -149,7 +154,7 @@ class ComputePositions():
     def _make_final_idl_widget(self, title, initial_x=0., initial_y=0.):
         """Make a widget for getting a star's RA and Dec"""
         star_widget = widgets.VBox([
-            widgets.Label(value=title),
+            widgets.Label(value=title, layout = widgets.Layout(display='flex', justify_content='center')),
             widgets.VBox([
                 widgets.FloatText(value=initial_x, description='Final IDL X', disabled=False),
                 widgets.FloatText(value=initial_y, description='Final IDL Y', disabled=False)
@@ -196,6 +201,14 @@ class ComputePositions():
         # initialize the apers
         self._update_aperture_options()
         # to show or not to show the full aperture list
+
+
+        self._show_spikes_chkbx = widgets.Checkbox(
+            value = widget_values.get('show_diffraction_spikes', False),
+            description='Show diffraction spikes (WIP)',
+            disabled=False,
+            indent=False
+        )
 
         # Position Angle
         self._PA_setter = widgets.BoundedFloatText(
@@ -249,7 +262,7 @@ class ComputePositions():
     def _make_ui(self):
         self._make_widgets(self.parameter_values)
         grid = widgets.GridspecLayout(
-            n_rows=9, n_columns=3,
+            n_rows=11, n_columns=3,
             style=dict(background='white')
         )
         grid[0, :] = widgets.Label(
@@ -257,14 +270,21 @@ class ComputePositions():
             layout = widgets.Layout(display='flex', justify_content='center'),
         )
         # grid[1, 0] = self._instr_picker
-        grid[1, 0] = widgets.HBox([self._instr_picker, self._exclude_roi_chkbx])
+        grid[1, 0] = self._instr_picker
         grid[2, 0] = self._sci_aper_picker
-        grid[4, 0] = self._PA_setter
-        grid[5:8, 0] = self._slew_to_this_idl
-
+        grid[3, 0] = widgets.Label(value='Options', layout = widgets.Layout(display='flex', justify_content='center'),)
+        # toggles
+        grid[4:10, 0] = widgets.VBox(
+            [self._exclude_roi_chkbx,
+             self._show_spikes_chkbx],
+            layout=widgets.Layout(justify_content='flex-start'),
+        )
+        # position column
         grid[1:4, 1] = self._acq_pos_widget
         grid[4:7, 1] = self._sci_pos_widget
+        grid[7:10, 1] = self._slew_to_this_idl
 
+        # other stars text entry
         grid[1:-1, 2] = self._other_stars_widget
 
         # place the buttons at the bottom of the central column
