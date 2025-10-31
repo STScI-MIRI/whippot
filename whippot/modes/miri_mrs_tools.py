@@ -19,13 +19,13 @@ TRACE_DOWN = 300 * aper.YSciScale
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
 
-    # def filter_aperture_options(self):
-    #     """
-    #     Function that returns a filtered list of apertures that can be selected
-    #     Written this way so that it can be overriden by subclasses
-    #     """
-    #     apernames = [i for i in  whippot_tools.Siaf(self.parameter_values['instr']).apernames if 'MIRIFU_CHANNEL' in i]
-    #     return list(apernames)
+    def filter_aperture_options(self):
+        """
+        Function that returns a filtered list of apertures that can be selected
+        Written this way so that it can be overriden by subclasses
+        """
+        apernames = [i for i in  whippot_tools.Siaf(self.parameter_values['instr']).apernames if 'MIRIFU' in i]
+        return list(apernames)
 
     def plot_scene(self, *args) -> mpl.figure.Figure:
         # copy the docstring
