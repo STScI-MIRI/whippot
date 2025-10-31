@@ -274,13 +274,13 @@ class ComputePositions():
             layout = widgets.Layout(display='flex', justify_content='center'),
         )
         # grid[1, 0] = self._instr_picker
-        grid[1, 0] = self._instr_picker
+        grid[1, 0] = widgets.HBox([self._instr_picker, self._exclude_roi_chkbx])
         grid[2, 0] = self._sci_aper_picker
-        grid[3, 0] = widgets.Label(value='Options', layout = widgets.Layout(display='flex', justify_content='center'),)
+        grid[4, 0] = self._PA_setter
+        grid[5, 0] = widgets.Label(value='Options', layout = widgets.Layout(display='flex', justify_content='center'),)
         # toggles
-        grid[4:10, 0] = widgets.VBox(
-            [self._exclude_roi_chkbx,
-             self._show_spikes_chkbx],
+        grid[6:10, 0] = widgets.VBox(
+            [self._show_spikes_chkbx],
             layout=widgets.Layout(justify_content='flex-start'),
         )
         # position column
