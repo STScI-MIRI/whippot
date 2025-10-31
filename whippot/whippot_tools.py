@@ -338,9 +338,11 @@ class ComputePositions():
                 show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
             )
-            fig = whippot_plots.plot_aper_sky(
+            fig = whippot_plots.plot_aper_to_frame(
                 self.get_aper(),
                 self.idl_coords_after_ta,
+                frame_from='idl',
+                frame_to='sky',
                 ax = axes[i, 1],
                 title='Sky-oriented view\n(ACQ star centered)',
                 show_legend = False,
@@ -357,14 +359,25 @@ class ComputePositions():
             show_legend = True,
             idl_mask=lom.make_mask(mask_func),
         )
-        fig = whippot_plots.plot_aper_sky(
+        fig = whippot_plots.plot_aper_to_frame(
             self.get_aper(),
             self.idl_coords_after_slew,
+            frame_from='idl',
+            frame_to='sky',
             ax = axes[i, 1],
             title='Sky-oriented view',
             show_legend = False,
             idl_mask=lom.make_mask(mask_func),
         )
+        # fig = whippot_plots.plot_aper_sky(
+        #     self.get_aper(),
+        #     self.idl_coords_after_slew,
+        #     ax = axes[i, 1],
+        #     title='Sky-oriented view',
+        #     show_legend = False,
+        #     idl_mask=lom.make_mask(mask_func),
+        # )
+
         return fig
 
     def show_ui(self):
