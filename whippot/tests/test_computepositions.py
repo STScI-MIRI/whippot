@@ -1,8 +1,12 @@
 import pytest
 
 from whippot import whippot_tools
-from whippot.modes import miri_lrs_slitless_tools
-from whippot.modes import miri_wfss_tools
+from whippot.modes import (
+    miri_lrs_slitless_tools,
+    miri_wfss_tools,
+    miri_mrs_tools,
+)
+
 
 sources = {
     'SCI': whippot_tools.SkyCoord("05 24 20.7552 -70 05 1.60", frame='icrs', unit=("hourangle","degree")),
@@ -39,3 +43,7 @@ def test_MiriWFSS_ComputePositions():
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
 
+def test_MiriMRS_ComputePositions():
+    cp = miri_mrs_tools.ComputePositions(initial_values=default_init)
+    fig = cp.plot_scene()
+    whippot_tools.plt.close(fig)
