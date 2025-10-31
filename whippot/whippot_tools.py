@@ -2,8 +2,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-import matplotlib.ticker as ticker
-from matplotlib import patches, path
 
 from astropy.coordinates import SkyCoord
 from astropy import units
@@ -283,7 +281,7 @@ class ComputePositions():
         ])
         return ui
 
-    def plot_scene(self, *args) -> mpl.figure.Figure:
+    def plot_scene(self, *args, frame='idl') -> mpl.figure.Figure:
         """
         Plot the detector- and sky-oriented scenes with the footprint of the selected aperture
 
@@ -310,9 +308,11 @@ class ComputePositions():
 
         i = 0
         if not self.SELF_TA:
-            fig = whippot_plots.plot_aper_idl(
+            fig = whippot_plots.plot_aper_to_frame(
                 self.get_aper(),
                 self.idl_coords_after_ta,
+                frame_from='idl',
+                frame_to=frame,
                 ax = axes[i, 0],
                 title='Detector-oriented view\n(ACQ star centered)',
                 show_legend = False,
@@ -327,9 +327,11 @@ class ComputePositions():
                 idl_mask=lom.make_mask(mask_func),
             )
             i += 1
-        fig = whippot_plots.plot_aper_idl(
+        fig = whippot_plots.plot_aper_to_frame(
             self.get_aper(),
             self.idl_coords_after_slew,
+            frame_from='idl',
+            frame_to=frame,
             ax = axes[i, 0],
             title='Detector-oriented view',
             show_legend = True,
@@ -630,59 +632,4 @@ def sky_to_idl(
         idl_coords.append({'label': label, 'position': np.array(aper.sky_to_idl(pos.ra.deg, pos.dec.deg))})
     return idl_coords
 
-
-def transform_aper_footprint(
-    aper_from,
-    aper_to,
-    to_frame='idl',
-    **patch_kwargs,
-) -> mpl.patches.Patch:
-    """
-    Translate an aperture footprint to the IDL, SCI, or DET frame of another aperture
-    """
-    vertices = aper_from.closed_polygon_points("tel", rederive=False)
-    vertices  = list(zip(*aper_to.convert(
-        *vertices,
-        from_frame='tel',
-        to_frame=to_frame
-    )))
-    default_kwargs = dict(fill=False, ec='gray')
-    default_kwargs.update(patch_kwargs)
-    footprint = mpl.patches.PathPatch(
-        mpl.patches.Path(vertices=vertices, closed=True),
-        **default_kwargs
-    )
-    return footprint
-
-def transform_patch_footprint(
-    patch : mpl.patches.Patch,
-    aper : pysiaf.aperture.JwstAperture,
-    frame_from : str = 'idl',
-    frame_to : str = 'sky',
-    **patch_kwargs,
-) -> mpl.patches.Patch :
-    """
-    Take a patch and transform its vertices to a different coordinate system
-
-    Parameters
-    ----------
-    patch : mpl.patches.Patch
-    aper : pysiaf.aperture.JwstAperture
-    frame_from : str = 'idl'
-    frame_to : str = 'sky'
-
-    Output
-    ------
-    transf_patch : mpl.patches.Patch
-
-    """
-    p = patch.get_path()
-    codes = patch.get_path().codes
-    x, y = patch.get_verts().T
-    transf_verts = np.array(aper.convert(x, y, frame_from, frame_to)).T
-    transf_patch = patches.PathPatch(
-        path.Path(list(transf_verts), codes=codes),
-        **patch_kwargs,
-    )
-    return transf_patch
 

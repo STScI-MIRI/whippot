@@ -31,7 +31,7 @@ class ComputePositions(whippot_tools.ComputePositions):
         # copy the docstring
         super().plot_scene.__doc__
 
-        fig = super().plot_scene(self, *args)
+        fig = super().plot_scene(self, *args, frame='idl')
         # get the IDL and Sky axes
         idl_ax, sky_ax = fig.get_axes()
 
@@ -47,13 +47,13 @@ class ComputePositions(whippot_tools.ComputePositions):
             slit_params = dict(label=apername, zorder=-1, alpha=0.3, ec='k')
             new_aper = self.instr[apername]
             # idl
-            footprint = whippot_tools.transform_aper_footprint(
+            footprint = whippot_plots.transform_aper_footprint(
                 new_aper, self.aperture, 'idl',
                 **slit_params,
             )
             idl_patches.append(footprint)
             # sky
-            footprint = whippot_tools.transform_aper_footprint(
+            footprint = whippot_plots.transform_aper_footprint(
                 new_aper, self.aperture, 'sky',
                 **slit_params,
             )
@@ -63,13 +63,13 @@ class ComputePositions(whippot_tools.ComputePositions):
             channel_params = dict(label=apername, zorder=-1, alpha=0.2, ec='k', lw=2)
             new_aper = self.instr[apername]
             # idl
-            footprint = whippot_tools.transform_aper_footprint(
+            footprint = whippot_plots.transform_aper_footprint(
                 new_aper, self.aperture, 'idl',
                 **channel_params,
             )
             idl_patches.append(footprint)
             # sky
-            footprint = whippot_tools.transform_aper_footprint(
+            footprint = whippot_plots.transform_aper_footprint(
                 new_aper, self.aperture, 'sky',
                 **channel_params,
             )
@@ -77,7 +77,7 @@ class ComputePositions(whippot_tools.ComputePositions):
 
         # adjust the axes
         whippot_plots.include_patches_in_axes(idl_ax, idl_patches)
-        whippot_plots.include_patches_in_axes(sky_ax, sky_patches)
+        whippot_plots.include_patches_in_axes(sky_ax, sky_patches, invert_ra_axis=True)
         # add the footprints to the axes
         for patch in idl_patches:
             idl_ax.add_patch(patch)

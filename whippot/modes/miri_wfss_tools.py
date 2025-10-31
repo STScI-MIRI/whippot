@@ -76,30 +76,11 @@ class ComputePositions(whippot_tools.ComputePositions):
         fig = super().plot_scene(self, *args)
         idl_ax, sky_ax = fig.get_axes()
 
-        # # add traces to the detector and sky axis
-        # for i, (k, coord) in enumerate(self.idl_coords_after_slew.items()):
-        #     # plot each trace as a Rectangle, defining the height, width, and bottom corner
-        #     height, width = (TRACE_UP + TRACE_DOWN), 1
-        #     # ll -> lower left corner
-        #     ll = (coord[0]-width/2, coord[1]-TRACE_DOWN)
-        #     idl_trace = mpl.patches.Rectangle(ll, width, height, facecolor=f'C0', alpha=0.5, zorder=-1)
-
-        #     # transform the trace vertices to sky coordinates and copy over the style
-        #     sky_trace = whippot_tools.transform_patch_footprint(idl_trace, self.aperture, 'idl', 'sky')
-        #     sky_trace.set_facecolor(idl_trace.get_facecolor())
-        #     sky_trace.set_alpha(idl_trace.get_alpha())
-        #     sky_trace.set_zorder(idl_trace.get_zorder())
-        #     sky_trace.set_linestyle('none')
-
-        #     # add the traces to the axes
-        #     det_ax.add_patch(idl_trace)
-        #     sky_ax.add_patch(sky_trace)
+        # for each source, add its trace to the detector and sky axes
+        idl_traces, sky_traces = [], []
         trace_properties = dict(
             facecolor='C0', alpha=0.5, zorder=-1, linestyle='none'
         )
-
-        # for each source, add its trace to the detector and sky axes
-        idl_traces, sky_traces = [], []
         for i, (k, coord) in enumerate(self.idl_coords_after_slew.items()):
             # plot each trace as a Rectangle, defining the height, width, and bottom corner
             height, width = (TRACE_UP + TRACE_DOWN), 1
@@ -108,7 +89,7 @@ class ComputePositions(whippot_tools.ComputePositions):
             idl_traces.append(mpl.patches.Rectangle(ll, width, height, **trace_properties))
 
             # transform the trace idl vertices to sky coordinates
-            sky_traces.append(whippot_tools.transform_patch_footprint(
+            sky_traces.append(whippot_plots.transform_patch_footprint(
                 idl_traces[-1], self.aperture, 'idl', 'sky', **trace_properties
             ))
         # for some reason you have to find the axis limits *before* you add the patches to the plot,

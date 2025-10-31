@@ -56,7 +56,7 @@ def plot_traces(
     # also show the SLITLESSUPPER and LOWER apertures
     for apername in ['MIRIM_SLITLESSUPPER', 'MIRIM_SLITLESSLOWER']:
         new_aper = cp.instr[apername]
-        footprint = whippot_tools.transform_aper_footprint(new_aper, aper, 'idl', label=apername)
+        footprint = whippot_plots.transform_aper_footprint(new_aper, aper, 'idl', label=apername)
         ax.add_patch(footprint)
     ax.legend(loc=(1.05, 0.3), title='Sources')
     return fig
@@ -75,9 +75,9 @@ class ComputePositions(whippot_tools.ComputePositions):
         # also show the SLITLESSUPPER and LOWER apertures
         for apername in ['MIRIM_SLITLESSUPPER', 'MIRIM_SLITLESSLOWER']:
             new_aper = self.instr[apername]
-            footprint = whippot_tools.transform_aper_footprint(new_aper, self.aperture, 'idl', label=apername)
+            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, 'idl', label=apername)
             idl_ax.add_patch(footprint)
-            footprint = whippot_tools.transform_aper_footprint(new_aper, self.aperture, 'sky', label=apername)
+            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, 'sky', label=apername)
             sky_ax.add_patch(footprint)
 
         trace_properties = dict(
@@ -94,7 +94,7 @@ class ComputePositions(whippot_tools.ComputePositions):
             idl_traces.append(mpl.patches.Rectangle(ll, width, height, **trace_properties))
 
             # transform the trace idl vertices to sky coordinates
-            sky_traces.append(whippot_tools.transform_patch_footprint(
+            sky_traces.append(whippot_plots.transform_patch_footprint(
                 idl_traces[-1], self.aperture, 'idl', 'sky', **trace_properties
             ))
         # for some reason you have to find the axis limits *before* you add the patches to the plot,
