@@ -82,7 +82,7 @@ class ComputePositions():
         else:
             self._sci_aper_picker.value = self._sci_apers[0]
 
-    def _update_parameter_dict(self):
+    def _update_parameter_dict(self, *args):
         # read in the GUI fields to the parameter dictionary
         self.parameter_values['instr'] = self._instr_picker.value
         self.parameter_values['sci_aper'] = self._sci_aper_picker.value
@@ -205,10 +205,14 @@ class ComputePositions():
 
         self._show_spikes_chkbx = widgets.Checkbox(
             value = widget_values.get('show_diffraction_spikes', False),
-            description='Show diffraction spikes (WIP)',
+            description='Show diffraction spikes',
             disabled=False,
             indent=False
         )
+        self._show_spikes_chkbx.observe(
+            lambda _: self.parameter_values.update({'show_diffraction_spikes': self._show_spikes_chkbx.value})
+        )
+
 
         # Position Angle
         self._PA_setter = widgets.BoundedFloatText(
@@ -326,10 +330,11 @@ class ComputePositions():
         # the function to generate mask patches
         mask_func = lom.list_of_masks.get(aper.AperName.upper(), None)
 
+        show_spikes = self.parameter_values['show_diffraction_spikes']
         i = 0
         if not self.SELF_TA:
             fig = whippot_plots.plot_aper_to_frame(
-                self.get_aper(),
+                self.aperture,
                 self.idl_coords_after_ta,
                 frame_from='idl',
                 frame_to=frame,
@@ -337,9 +342,10 @@ class ComputePositions():
                 title='Detector-oriented view\n(ACQ star centered)',
                 show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
+                show_diffraction_spikes=show_spikes,
             )
             fig = whippot_plots.plot_aper_to_frame(
-                self.get_aper(),
+                self.aperture,
                 self.idl_coords_after_ta,
                 frame_from='idl',
                 frame_to='sky',
@@ -347,10 +353,11 @@ class ComputePositions():
                 title='Sky-oriented view\n(ACQ star centered)',
                 show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
+                show_diffraction_spikes=show_spikes,
             )
             i += 1
         fig = whippot_plots.plot_aper_to_frame(
-            self.get_aper(),
+            self.aperture,
             self.idl_coords_after_slew,
             frame_from='idl',
             frame_to=frame,
@@ -358,9 +365,10 @@ class ComputePositions():
             title='Detector-oriented view',
             show_legend = True,
             idl_mask=lom.make_mask(mask_func),
+            show_diffraction_spikes=show_spikes,
         )
         fig = whippot_plots.plot_aper_to_frame(
-            self.get_aper(),
+            self.aperture,
             self.idl_coords_after_slew,
             frame_from='idl',
             frame_to='sky',
@@ -368,15 +376,8 @@ class ComputePositions():
             title='Sky-oriented view',
             show_legend = False,
             idl_mask=lom.make_mask(mask_func),
+            show_diffraction_spikes=show_spikes,
         )
-        # fig = whippot_plots.plot_aper_sky(
-        #     self.get_aper(),
-        #     self.idl_coords_after_slew,
-        #     ax = axes[i, 1],
-        #     title='Sky-oriented view',
-        #     show_legend = False,
-        #     idl_mask=lom.make_mask(mask_func),
-        # )
 
         return fig
 

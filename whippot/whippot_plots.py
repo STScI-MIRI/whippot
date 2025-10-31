@@ -28,6 +28,7 @@ def plot_aper_to_frame(
     title : str = '',
     show_legend : bool = True,
     idl_mask = None,
+    show_diffraction_spikes : bool = False,
 ) -> mpl.figure.Figure:
     """
     Make a plot (aperture, masks, sources, etc.) in an arbitrary telescope frame
@@ -68,7 +69,11 @@ def plot_aper_to_frame(
             ax.add_artist(idl_mask)
         else:
             ax.add_artist(
-                transform_patch_footprint(idl_mask, aper, frame_from='idl', frame_to=frame_to)
+                transform_patch_footprint(
+                    idl_mask, aper,
+                    frame_from='idl', frame_to=frame_to,
+                    **lom.mask_kwargs
+                )
             )
 
     offset = np.array(offset)
@@ -99,12 +104,13 @@ def plot_aper_to_frame(
                    marker='.',
                    s=50)
 
-    draw_diffraction_spikes(
-        ax,
-        aper,
-        star_positions,
-        source_frame=frame_to
-    )
+    if show_diffraction_spikes:
+        draw_diffraction_spikes(
+            ax,
+            aper,
+            star_positions,
+            source_frame=frame_to
+        )
 
     if show_legend:
         ax.legend(loc=(1.05, 0.3))
@@ -114,81 +120,6 @@ def plot_aper_to_frame(
         ax.invert_xaxis()
     return fig
 
-# def plot_aper_idl(
-#         aper : pysiaf.aperture.JwstAperture,
-#         star_positions : dict[str, np.ndarray] = {},
-#         offset : list | np.ndarray = [0., 0.],
-#         ax = None,
-#         title = '',
-#         show_legend : bool = True,
-#         idl_mask = None,
-#         to_frame = 'idl',
-# ):
-#     """
-#     Plot the scene on the detector when you're pointed at the science target
-    
-#     Parameters
-#     ----------
-#     aper : pysiaf.aperture.JwstAperture
-#       the aperture to plot in IDL
-#     star_positions : dict[str, np.ndarray] = {}
-#       dictionary of star coordinates in IDL
-#     offset : list | np.ndarray = [0., 0.]
-#       any additional offset to aplpy to the star positions
-#     ax = None
-#       the axes object to plot on
-#     title = ''
-#       a title for the axis
-#     show_legend : bool = True
-#       if True, show the legend
-#     idl_mask = None
-#       a matplotlib Patch object to overlay on the aperture, in IDL coordinates
-#     to_frame = 'idl'
-#       options are: tel (telescope), det (detector), sci (aperture)
-#     """
-#     # plot 1 : POV of the detector
-#     if ax is None:
-#         fig, ax = plt.subplots(1, 1, layout='constrained')
-#     else:
-#         fig = ax.get_figure()
-#     if title != '':
-#         ax.set_title(title)
-#     aper.plot(ax=ax, label=False, frame=to_frame, c='gray', mark_ref=True)
-#     if idl_mask is not None:
-#         if to_frame == 'idl':
-#             ax.add_artist(idl_mask)
-#         else:
-#             pass
-
-#     offset = np.array(offset)
-#     star_positions = star_positions.copy()
-#     if 'ACQ' in star_positions.keys():
-#         acq_pos = star_positions['ACQ']
-#         ax.scatter(acq_pos[0] + offset[0], acq_pos[1] + offset[1],
-#                    c='k',
-#                    label=f"ACQ",
-#                    marker='x',
-#                    s=100)
-#     if 'SCI' in star_positions.keys():
-#         sci_pos = star_positions["SCI"]
-#         ax.scatter(*(sci_pos+ offset),
-#                    label=f"SCI",
-#                    marker="*",
-#                    c='k')
-#     for star, position in star_positions.items():
-#         if star in ['SCI','ACQ']:
-#             continue
-#         ax.scatter(*(position + offset),
-#                    # c='k',
-#                    label=star,
-#                    marker='.',
-#                    s=50)
-
-#     if show_legend:
-#         ax.legend(loc=(1.05, 0.3))
-#     ax.set_aspect("equal")
-#     ax.grid(True, ls='--', c='grey', alpha=0.5)
-#     return fig
 
 
 def plot_aper_sky(
@@ -321,8 +252,9 @@ def draw_diffraction_spikes(
     source_frame : the frame in which the source coordinates are defined
     """
     spike_length = 4 # arcsec
-    if source_frame == 'sky':
-        spike_length = 4 * units.arcsec.to(units.degree)
+    # if source_frame == 'sky':
+    #     spike_length = 4 * units.arcsec.to(units.degree)
+    #     print(spike_length)
     outer_spikelen = spike_length
     inner_spikelen = 0.5
     for angle in range(6):
@@ -332,15 +264,16 @@ def draw_diffraction_spikes(
             tel_pos = aperture.convert(*pos, source_frame, 'tel')
             ang_rad = np.deg2rad(angle * 60)
             spike_pts = (
-                pos[0] - np.asarray([inner_spikelen, outer_spikelen]) * np.sin(ang_rad),
-                pos[1] + np.asarray([inner_spikelen, outer_spikelen]) * np.cos(ang_rad)
+                tel_pos[0] - np.asarray([inner_spikelen, outer_spikelen]) * np.sin(ang_rad),
+                tel_pos[1] + np.asarray([inner_spikelen, outer_spikelen]) * np.cos(ang_rad)
             )
             # convert back to  the source frame
             spike_pts = aperture.convert(*spike_pts, 'tel', source_frame)
             ax.plot(
-                pos[0] - np.asarray([inner_spikelen, outer_spikelen]) * np.sin(ang_rad),
-                pos[1] + np.asarray([inner_spikelen, outer_spikelen]) * np.cos(ang_rad),
-                color='black', lw=1, marker='none', zorder=-1
+                # pos[0] - np.asarray([inner_spikelen, outer_spikelen]) * np.sin(ang_rad),
+                # pos[1] + np.asarray([inner_spikelen, outer_spikelen]) * np.cos(ang_rad),
+                *spike_pts,
+                color='black', lw=1, marker='none',
             )
     #         # smaller inner diffraction spikes, from overall primary
     #         if show_inner_diff_spikes:
