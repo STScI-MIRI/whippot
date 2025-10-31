@@ -61,19 +61,21 @@ def plot_aper_idl(
     offset = np.array(offset)
     star_positions = star_positions.copy()
     if 'ACQ' in star_positions.keys():
-        acq_pos = star_positions.pop('ACQ')
+        acq_pos = star_positions['ACQ']
         ax.scatter(acq_pos[0] + offset[0], acq_pos[1] + offset[1],
                    c='k',
                    label=f"ACQ",
                    marker='x',
                    s=100)
     if 'SCI' in star_positions.keys():
-        sci_pos = star_positions.pop("SCI")
+        sci_pos = star_positions["SCI"]
         ax.scatter(*(sci_pos+ offset),
                    label=f"SCI",
                    marker="*",
                    c='k')
     for star, position in star_positions.items():
+        if star in ['SCI','ACQ']:
+            continue
         ax.scatter(*(position + offset),
                    # c='k',
                    label=star,
