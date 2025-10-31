@@ -231,23 +231,23 @@ def draw_diffraction_spikes(
                 pos[1] + np.asarray([inner_spikelen, outer_spikelen]) * np.cos(ang_rad),
                 color='black', lw=1, marker='none', zorder=-1
             )
-            # smaller inner diffraction spikes, from overall primary
-            if show_inner_diff_spikes:
-                ang_rad = np.deg2rad(angle * 60 + 30 + aperture.V3IdlYAngle)
-                ax.plot(
-                    [pos[0], pos[0] - np.sin(ang_rad) * inner_spikelen],
-                    [pos[1], pos[1] + np.cos(ang_rad) * inner_spikelen],
-                    color='black', lw=2, marker='none', zorder=-1, alpha=0.5,
-                )
-            # Extra horizontal spikes from the +V3 SM strut
-    for angle in range(2):
-        ang_rad = np.deg2rad(angle * 180 + 90 + aperture.V3IdlYAngle)
-        spikelen = 1.5
-        for label, pos in sources.items():
-            ax.plot(
-                [pos[0], pos[0] - np.sin(ang_rad) * outer_spikelen],
-                [pos[1], pos[1] + np.cos(ang_rad) * outer_spikelen],
-                color='black', lw=1, marker='none'
-            )
+    #         # smaller inner diffraction spikes, from overall primary
+    #         if show_inner_diff_spikes:
+    #             ang_rad = np.deg2rad(angle * 60 + 30 + aperture.V3IdlYAngle)
+    #             ax.plot(
+    #                 [pos[0], pos[0] - np.sin(ang_rad) * inner_spikelen],
+    #                 [pos[1], pos[1] + np.cos(ang_rad) * inner_spikelen],
+    #                 color='black', lw=2, marker='none', zorder=-1, alpha=0.5,
+    #             )
+    #         # Extra horizontal spikes from the +V3 SM strut
+    # for angle in range(2):
+    #     ang_rad = np.deg2rad(angle * 180 + 90 + aperture.V3IdlYAngle)
+    #     spikelen = 1.5
+    #     for label, pos in sources.items():
+    #         ax.plot(
+    #             [pos[0], pos[0] - np.sin(ang_rad) * outer_spikelen],
+    #             [pos[1], pos[1] + np.cos(ang_rad) * outer_spikelen],
+    #             color='black', lw=1, marker='none'
+    #         )
     return
 
