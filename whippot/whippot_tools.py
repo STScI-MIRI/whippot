@@ -10,6 +10,7 @@ import pysiaf
 from pysiaf import Siaf
 
 import ipywidgets as widgets
+from ipywidgets import Layout
 
 from whippot import whippot_plots
 from whippot import list_of_masks as lom
@@ -41,7 +42,7 @@ class ComputePositions():
         # if no acq star coordinates are given, copy the sci star
         self._initial_values['acq_ra'] = initial_values.get("acq_ra", initial_values.get("sci_ra", 0))
         self._initial_values['acq_dec'] = initial_values.get("acq_dec", initial_values.get("sci_dec", 0))
-        self.parameter_values = self.default_parameters()
+        self.parameter_values = self.get_default_parameters()
         self.parameter_values.update(self._initial_values)
         self.instr = None
         self.aperture = None
@@ -52,7 +53,7 @@ class ComputePositions():
         if initial_values != {}:
             self.compute_positions()
 
-    def default_parameters(self) -> dict:
+    def get_default_parameters(self) -> dict:
         defaults = {
           'instr': 'MIRI',
           'sci_aper': 'MIRIM_CORON1550',
@@ -62,6 +63,7 @@ class ComputePositions():
           'other_stars' : '',
           'exclude_roi' : True,
           'show_diffraction_spikes' : False,
+          'diff_spike_len': 4., 
         }
 
         return defaults
@@ -96,6 +98,7 @@ class ComputePositions():
         self.parameter_values['other_stars'] = self._other_stars_widget.value
         self.parameter_values['exclude_roi'] = self._exclude_roi_chkbx.value
         self.parameter_values['show_diffraction_spikes'] = self._show_spikes_chkbx.value
+        self.parameter_values['diff_spike_len'] = self._diff_spike_len_setter.value
 
         # update various object attributes from the parameter dictionary
         self.instr = Siaf(self.parameter_values['instr'])
@@ -121,6 +124,7 @@ class ComputePositions():
         self._other_stars_widget.value = self.parameter_values['other_stars']
         self._exclude_roi_chkbx.value = self.parameter_values['exclude_roi']
         self._show_spikes_chkbx.value = self.parameter_values['show_diffraction_spikes']
+        self._diff_spike_len_setter.value = self.parameter_values['diff_spike_len']
 
         # update various object attributes from the parameter dictionary
         self.instr = Siaf(self.parameter_values['instr'])
@@ -143,7 +147,7 @@ class ComputePositions():
     def _make_starpos_widget(self, title, initial_ra=0., initial_dec=0.):
         """Make a widget for getting a star's RA and Dec"""
         star_widget = widgets.VBox([
-            widgets.Label(value=title, layout = widgets.Layout(display='flex', justify_content='center')),
+            widgets.Label(value=title, layout = Layout(display='flex', justify_content='center')),
             widgets.VBox([
                 widgets.FloatText(value=initial_ra, description='RA [deg]', disabled=False),
                 widgets.FloatText(value=initial_dec, description='Dec [deg]', disabled=False)
@@ -154,7 +158,7 @@ class ComputePositions():
     def _make_final_idl_widget(self, title, initial_x=0., initial_y=0.):
         """Make a widget for getting a star's RA and Dec"""
         star_widget = widgets.VBox([
-            widgets.Label(value=title, layout = widgets.Layout(display='flex', justify_content='center')),
+            widgets.Label(value=title, layout = Layout(display='flex', justify_content='center')),
             widgets.VBox([
                 widgets.FloatText(value=initial_x, description='Final IDL X', disabled=False),
                 widgets.FloatText(value=initial_y, description='Final IDL Y', disabled=False)
@@ -205,12 +209,20 @@ class ComputePositions():
 
         self._show_spikes_chkbx = widgets.Checkbox(
             value = widget_values.get('show_diffraction_spikes', False),
-            description='Show diffraction spikes',
+            # description='Show diffraction spikes',
             disabled=False,
             indent=False
         )
         self._show_spikes_chkbx.observe(
             lambda _: self.parameter_values.update({'show_diffraction_spikes': self._show_spikes_chkbx.value})
+        )
+        self._diff_spike_len_setter = widgets.FloatText(
+            value=widget_values.get("diff_spike_len", 4.),
+            description='Spike len [arcsec]',
+            style={'description_width': 'initial'}
+        )
+        self._diff_spike_len_setter.observe(
+            lambda _: self.parameter_values.update({'diff_spike_len': self._diff_spike_len_setter.value})
         )
 
 
@@ -263,7 +275,9 @@ class ComputePositions():
         self._output_before = widgets.Output()
         self._output_after = widgets.Output()
 
+
     def _make_ui(self):
+        """Create the ipywidgets layout with the UI"""
         self._make_widgets(self.parameter_values)
         grid = widgets.GridspecLayout(
             n_rows=11, n_columns=3,
@@ -271,17 +285,23 @@ class ComputePositions():
         )
         grid[0, :] = widgets.Label(
             value="IDL Coordinate and Offset TA Calculator".upper(),
-            layout = widgets.Layout(display='flex', justify_content='center'),
+            layout = Layout(display='flex', justify_content='center'),
         )
         # grid[1, 0] = self._instr_picker
         grid[1, 0] = widgets.HBox([self._instr_picker, self._exclude_roi_chkbx])
         grid[2, 0] = self._sci_aper_picker
         grid[4, 0] = self._PA_setter
-        grid[5, 0] = widgets.Label(value='Options', layout = widgets.Layout(display='flex', justify_content='center'),)
+        grid[5, 0] = widgets.Label(value='Plot options', layout = Layout(display='flex', justify_content='center'),)
         # toggles
         grid[6:10, 0] = widgets.VBox(
-            [self._show_spikes_chkbx],
-            layout=widgets.Layout(justify_content='flex-start'),
+            [
+                widgets.HBox(
+                    [widgets.Label("Show diffraction spikes", style={'description_width': 'initial'}), self._show_spikes_chkbx],
+                    layout=Layout(justify_content='flex-start')
+                ),
+                self._diff_spike_len_setter
+            ],
+            layout=Layout(justify_content='flex-start'),
         )
         # position column
         grid[1:4, 1] = self._acq_pos_widget
@@ -343,6 +363,7 @@ class ComputePositions():
                 show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
                 show_diffraction_spikes=show_spikes,
+                spike_length=self.parameter_values['diff_spike_len']
             )
             fig = whippot_plots.plot_aper_to_frame(
                 self.aperture,
@@ -354,6 +375,7 @@ class ComputePositions():
                 show_legend = False,
                 idl_mask=lom.make_mask(mask_func),
                 show_diffraction_spikes=show_spikes,
+                spike_length=self.parameter_values['diff_spike_len']
             )
             i += 1
         fig = whippot_plots.plot_aper_to_frame(
@@ -366,6 +388,7 @@ class ComputePositions():
             show_legend = True,
             idl_mask=lom.make_mask(mask_func),
             show_diffraction_spikes=show_spikes,
+            spike_length=self.parameter_values['diff_spike_len']
         )
         fig = whippot_plots.plot_aper_to_frame(
             self.aperture,
@@ -377,6 +400,7 @@ class ComputePositions():
             show_legend = False,
             idl_mask=lom.make_mask(mask_func),
             show_diffraction_spikes=show_spikes,
+            spike_length=self.parameter_values['diff_spike_len']
         )
 
         return fig

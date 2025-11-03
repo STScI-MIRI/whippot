@@ -29,6 +29,7 @@ def plot_aper_to_frame(
     show_legend : bool = True,
     idl_mask = None,
     show_diffraction_spikes : bool = False,
+    spike_length : float = 4.,
 ) -> mpl.figure.Figure:
     """
     Make a plot (aperture, masks, sources, etc.) in an arbitrary telescope frame
@@ -39,6 +40,9 @@ def plot_aper_to_frame(
       the aperture to plot in IDL
     star_positions : dict[str, np.ndarray] = {}
       dictionary of star coordinates in IDL
+    frame_from = 'idl'
+    frame_to = 'idl'
+      options are: tel (telescope), det (detector), sci (aperture)
     offset : list | np.ndarray = [0., 0.]
       any additional offset to aplpy to the star positions
     ax = None
@@ -49,9 +53,8 @@ def plot_aper_to_frame(
       if True, show the legend
     idl_mask = None
       a matplotlib Patch object to overlay on the aperture, in IDL coordinates
-    frame_from = 'idl'
-    frame_to = 'idl'
-      options are: tel (telescope), det (detector), sci (aperture)
+    spike_length : float = 4.
+      diffraction spike length, in arcsec
 
     Output
     ------
@@ -110,7 +113,8 @@ def plot_aper_to_frame(
             ax,
             aper,
             star_positions,
-            source_frame=frame_to
+            source_frame=frame_to,
+            spike_length=spike_length,
         )
 
     if show_legend:
@@ -157,7 +161,8 @@ def draw_diffraction_spikes(
     aperture,
     sources={},
     source_frame = 'idl',
-    show_inner_diff_spikes : bool = False,
+    # show_inner_diff_spikes : bool = False,
+    spike_length : float = 4.,
 ) -> None:
     """
     Draw diffraction spikes on the sources at the given position
@@ -167,7 +172,6 @@ def draw_diffraction_spikes(
     ----------
     source_frame : the frame in which the source coordinates are defined
     """
-    spike_length = 4 # arcsec
     # if source_frame == 'sky':
     #     spike_length = 4 * units.arcsec.to(units.degree)
     #     print(spike_length)
