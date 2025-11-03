@@ -348,7 +348,9 @@ class ComputePositions():
         fig.suptitle(aper.AperName)
 
         # the function to generate mask patches
-        mask_func = lom.list_of_masks.get(aper.AperName.upper(), None)
+        # default is a function that returns None
+        def nonefunc(): return None
+        mask_func = lom.list_of_masks.get(aper.AperName.upper(), nonefunc)
 
         show_spikes = self.parameter_values['show_diffraction_spikes']
         i = 0
@@ -361,7 +363,7 @@ class ComputePositions():
                 ax = axes[i, 0],
                 title='Detector-oriented view\n(ACQ star centered)',
                 show_legend = False,
-                idl_mask=lom.make_mask(mask_func),
+                idl_mask=mask_func(),
                 show_diffraction_spikes=show_spikes,
                 spike_length=self.parameter_values['diff_spike_len']
             )
@@ -373,7 +375,7 @@ class ComputePositions():
                 ax = axes[i, 1],
                 title='Sky-oriented view\n(ACQ star centered)',
                 show_legend = False,
-                idl_mask=lom.make_mask(mask_func),
+                idl_mask=mask_func(),
                 show_diffraction_spikes=show_spikes,
                 spike_length=self.parameter_values['diff_spike_len']
             )
@@ -386,7 +388,7 @@ class ComputePositions():
             ax = axes[i, 0],
             title='Detector-oriented view',
             show_legend = True,
-            idl_mask=lom.make_mask(mask_func),
+            idl_mask=mask_func(),
             show_diffraction_spikes=show_spikes,
             spike_length=self.parameter_values['diff_spike_len']
         )
@@ -398,7 +400,7 @@ class ComputePositions():
             ax = axes[i, 1],
             title='Sky-oriented view',
             show_legend = False,
-            idl_mask=lom.make_mask(mask_func),
+            idl_mask=mask_func(),
             show_diffraction_spikes=show_spikes,
             spike_length=self.parameter_values['diff_spike_len']
         )
