@@ -17,8 +17,8 @@ provided offset x and y special requirements. An example use case for WHIPPOT
 might be to find out where a star will appear on the detector in one
 observation, and then command the telescope in a second observation to put a
 different star at that same position (for example, to serve as a PSF subtraction
-reference). This is essentially a user-friendly wrapper around the very useful
-and very powerful pySIAF library (<https://pysiaf.readthedocs.io/>).
+reference). WHIPPOT is essentially a user-friendly wrapper around the very
+useful and very powerful pySIAF library (<https://pysiaf.readthedocs.io/>).
 
 
 ## Setup ## 
@@ -38,8 +38,9 @@ There are two ways to use these tools, after downloading the repository:
    - If you plan to make your own modifications, use `pip install -e .` (but you
      should probably fork the repo first)
    - Copy the tutorial notebooks to your working directory.
-2. Nagivate to the `whippot` subfolder, and copy the notebook(s) from `notebooks/` and the
-   `whippot_tools.py` scripts to whatever directory you plan to be working in.
+2. Nagivate to the `whippot` subfolder, and copy the notebook(s) from
+   `notebooks/` and the `whippot_tools.py` scripts to whatever directory you
+   plan to be working in.
    - In this case, the statement to import `whippot_tools` must be changed to
      `import whippot_tools`.
    - These files can also be copied directly from the online repository, without
@@ -57,8 +58,8 @@ the telescope that can be used to command the telescope pointing. Some of these
 "apertures" also correspond to subarrays that are read out as data.
 
 The "All-Instrument Interface" is much easier to use than the previous
-script-based version, and is recommended. Some highlights, while the README is
-slowly updated:
+script-based version, and is recommended to be used instead. Some highlights,
+while the README is slowly updated:
 1. This is GUI-based, instead of script-based.
 2. Any aperture can be chosen from any instrument, no longer just MIRI.
    Unfortunately, no help is given to the user to figure out which apertures are
@@ -69,20 +70,22 @@ slowly updated:
    - Plot the aperture;
    - Poke around on JDox for any mentions of the SIAF;
    - Ask an experienced JWST user (_very_ experienced).
-   - Generally, users are referred to the documentation here: https://pysiaf.readthedocs.io/
+   - Generally, users are referred to the documentation here:
+     https://pysiaf.readthedocs.io/
 4. An initialization dictionary can be provided. If none is, the GUI will
    initialize with default values.
-   - Initialization dictionaries are useful for repeatability. 
+   - Initialization dictionaries are useful for repeatability.
    - To get a ist of viable keywords, instantiate an empty `ComputePositions`
      instance with `cp = whippot_tools.ComputePositions()` and check the
      `cp.parameter_values` dictionary
 5. The SCI and ACQ target positions are intended for use with offset target
    acquisition (that is, TA is performed on a different target from the science
    target).
-   - If performing self-TA, use the same coordinates for the ACQ and SCI position
-     fields. The ACQ target will be dropped from plots and reports.
-   - Also, the `acq_ra` and `acq_dec` fields can be omitted from the initialization
-     dictionary, in which case the SCI target positions will be copied over.
+   - If performing self-TA, use the same coordinates for the ACQ and SCI
+     position fields. The ACQ target will be dropped from plots and reports.
+   - Also, the `acq_ra` and `acq_dec` fields can be omitted from the
+     initialization dictionary, in which case the SCI target positions will be
+     copied over.
 5. If you want your SCI star to land somewhere in the aperture other than the
    reference position, enter this in arcsec into the "Final IDL X" and "Final
    IDL Y" positions. Read these as, "This is the final position (in IDL X and Y)
@@ -90,10 +93,11 @@ slowly updated:
    IDL X" and "Final IDL Y" positions. Read these fields as, "This is the final
    position (in IDL X and Y) where I want my SCI target to end up".
 
-!! Attention !! It is not recommended to use the same `ComputePositions` instance for
-multiple calculations, because all references to a `ComputePositions` instance in
-a notebook refer to the same object. Instead, if you wish to compare the results
-of two calculations, create a new `ComputePositions` object for each.
+!! Attention !! It is not recommended to use the same `ComputePositions`
+instance for multiple calculations, because all references to a
+`ComputePositions` instance in a notebook refer to the same object. Instead, if
+you wish to compare the results of two calculations, create a new
+`ComputePositions` object for each.
 
 The following image shows the GUI interface and corresponding output:
 
@@ -119,6 +123,9 @@ The following image shows the GUI interface and corresponding output:
 - Final IDL X/Y: After TA, this is where you want your SCI target to end up (in
   IDL X/Y arcsec, corresponding to APT's "Special Requirements -> Offsets"
   option).
+- Additionally, there are plotting options:
+  - Show diffraction spikes: toggle to plot the orientations of the diffraction
+    spikes. The field "Spike length" sets their length, in arcsec.
 
 ### Initialization dictionary keywords ###
 
@@ -136,15 +143,38 @@ and the field above to which they correspond:
 - acq\_dec -> ACQ target position / Dec [deg]
 - other\_stars -> Other Stars
 
-### Scripting mode ###
+### Non-interactive mode ###
 
-This can be used in scripting mode, without the UI, simply by not calling the
-GUI. The initialization dictionary will trigger the
-`ComputePositions.compute_positions()` method that populates the
-`idl_coords_after_ta` and `idl_coords_after_slew` attributes. To show the scene
-plots, simply call `plot_scene()`, which returns a reference to the generated
-figure. `compute_positions()` reads from the `ComputePositions.parameter_values`
-dictionary, so that can be modified to re-compute with different values.
+This can be used in non-interactive mode without the UI, either from the
+terminal, a notebook, or a script, simply by not calling the GUI. Instantiating
+a `ComputePositions` instance with an initialization dictionary will
+automatically trigger the `ComputePositions.compute_positions()` method that
+populates the `idl_coords_after_ta` and `idl_coords_after_slew` attributes. To
+show the scene plots, simply call `plot_scene()`, which returns a reference to
+the generated figure. `compute_positions()` reads from the
+`ComputePositions.parameter_values` dictionary, so that can be modified to
+re-compute with different values. To visualize the source positions, call the
+`plot_scene()` method.
+
+### Available mode-specific UIs ###
+
+While the basic WHIPPOT interface works with any aperture on Webb, a few
+observing modes enumerated below have data overlays that provide more specific
+information. They can be used by substituting `whippot_tools.ComputePositions()`
+for `whippot.modes.[[mode_name]].ComputePositions()`.
+
+  * MIRI LRS Slitless Spectroscopy
+    - `whippot/modes/miri_lrs_slitless_tools.py`
+    - Shows approximate positions spectral traces
+    - Overlays the SLITLESS_UPPER and SLITLESS_LOWER apertures.
+  * MIRI Wide-field Slitless Spectroscopy
+    - `whippot/modes/miri_wfss_tools.py`
+    - Shows approximate positions spectral traces
+  * MIRI MRS
+    - `whippot/modes/miri_mrs_tools.py`
+    - Shows footprint of all 4 channels.
+    - Shows footprints of slices for the selected channel.
+
 
 ## Examples, Tips and Tricks ##
 
@@ -175,7 +205,8 @@ For targets with high proper motion, the user will have to propagate it
   the positions using `SkyCoord.apply_space_motion()` to compute offsets for
   multiple epochs. Each offset value is pinned to a particular observing epoch.
   The user will have to carefully assess their error budget corresponding to how
-  much sources might move, and how much positional error their observing mode can tolerate.
+  much sources might move, and how much positional error their observing mode
+  can tolerate.
 
 
 #### Position angle ####
@@ -193,17 +224,17 @@ low latitudes. If you are using this library to plan observations in APT, the
 
 This is not to be confused with the `PA_APER` header keyword, which corresponds
 to the `Aperture PA Range` radio button and refers to the amount by which the
-*detector*-aligned coordinate system is rotated with respect to the `V3` axis. It
-also is not to be confused with the `PA_V3` header keyword, which refers to the
-V3 position angle at the position of the telescope boresight. 
+*detector*-aligned coordinate system is rotated with respect to the `V3` axis.
+It also is not to be confused with the `PA_V3` header keyword, which refers to
+the V3 position angle at the position of the telescope boresight.
 
 Offset slews are specified along the detector axes, in units of arcsec (see
 https://jwst-docs.stsci.edu/jppom/special-requirements/general-special-requirements).
-In order to convert between the detector coordinate system and positions on
-the sky, pySIAF requires information about the orientation of the telescope.
-Here, we provide this information using a combination of the coronagraph used
-(see `coron_id`), and position angle of the v3 axis of the telescope, measured
-at the chosen coronagraph's reference position.
+In order to convert between the detector coordinate system and positions on the
+sky, pySIAF requires information about the orientation of the telescope. Here,
+we provide this information using a combination of the coronagraph used (see
+`coron_id`), and position angle of the v3 axis of the telescope, measured at the
+chosen coronagraph's reference position.
 
 More details about the different coordinate systems used in describing positions
 in the telescope can be found here:
@@ -211,6 +242,8 @@ https://jwst-docs.stsci.edu/jwst-observatory-characteristics/jwst-observatory-co
 .
 
 ## Extending WHIPPOT ##
+
+### New observing modes ###
 
 JWST has many different observing modes that could all use different overlays to
 make their plots more informative. Examples for extending MIRI WFSS
@@ -223,6 +256,38 @@ If the number of such files becomes "large", we may restructure the directories.
 The best way to extend WHIPPOT is to subclass the
 `whippot_tools.ComputePositions` class and override its methods and attributes.
 Examples can be seen in the files referenced above.
+
+### New aperture masks ###
+
+For many observing modes, it is helpful to visualize features of the field of
+view like the occulting spots of coronagraphs. If your observing mode does not
+have a mask defined, you can define one yourself in the two files
+`aperture_mask_functions.py` and `list_of_masks.py`. Each mask is created as a
+matplotlib Patch object that can be added to a matplotlib axis. Because of the
+way matplotlib works, a single instance of a Patch object cannot be added among
+multiple axes, meaning that multiple copies of each mask must be made for each
+of the subplots in the default WHIPPOT output plot. Read below to see how this
+is handles.
+
+#### `aperture_mask_functions.py` ####
+
+This module contains functions that all return a matplotlib Patch object. Each
+function corresponds to a different aperture or class of apertures, e.g. the
+MIRI four-quadrant phase mask coronagraphs.
+
+#### `list_of_masks.py` ####
+
+This function contains a dictionary called `list_of_masks`. Each entry is
+indexed by an APERNAME keyword, and the value stored at that entry is a function
+that generates the mask for that aperture. It is important that this be a
+function, because it must be called to create a new mask instance for every plot
+you want to make. This is handled by a wrapper called `mask_maker()`, which
+takes as arguments a generator function and an instance of the aperture and
+returns a new function that creates a matplotlib Patch instance when called with
+no arguments.
+
+
+
 
 ## FAQs for creating your APT program ##
 
@@ -288,8 +353,8 @@ See `LICENSE.rst` for more information.
 
 ## Contributing
 
-We love contributions! `whippot` is open source,
-built on open source, and we'd love to have you hang out in our community.
+We love contributions! `whippot` is open source, built on open source, and we'd
+love to have you hang out in our community.
 
 **Imposter syndrome disclaimer**: We want your help. No, really.
 
@@ -301,8 +366,8 @@ We assure you - the little voice in your head is wrong. If you can write code at
 all, you can contribute code to open source. Contributing to open source
 projects is a fantastic way to advance one's coding skills. Writing perfect code
 isn't the measure of a good developer (that would disqualify all of us!); it's
-trying to create something, making mistakes, and learning from those
-mistakes. That's how we all improve, and we are happy to help others learn.
+trying to create something, making mistakes, and learning from those mistakes.
+That's how we all improve, and we are happy to help others learn.
 
 Being an open source contributor doesn't just mean writing code, either. You can
 help out by writing documentation, tests, or even giving feedback about the
@@ -311,17 +376,21 @@ process). Some of these contributions may be the most valuable to the project as
 a whole, because you're coming to the project with fresh eyes, so you can see
 the errors and assumptions that seasoned contributors have glossed over.
 
-*Note:* This disclaimer was originally written by
-`Adrienne Lowe <https://github.com/adriennefriend>`_ for a
-`PyCon talk <https://www.youtube.com/watch?v=6Uj746j9Heo>`_, and was adapted by
-`whippot` based on its use in the README file for the
-`MetPy project <https://github.com/Unidata/MetPy>`_.
+*Note:* This disclaimer was originally written by `Adrienne Lowe
+<https://github.com/adriennefriend>`_ for a `PyCon talk
+<https://www.youtube.com/watch?v=6Uj746j9Heo>`_, and was adapted by `whippot`
+based on its use in the README file for the `MetPy project
+<https://github.com/Unidata/MetPy>`_.
 
 ## We get by with a little help from our friends
-- The NIRCam and MIRI coronagraph masks are taken from the JWST Coronagraph Visibility Tool
+- The NIRCam and MIRI coronagraph masks are taken from the JWST Coronagraph
+  Visibility Tool
   - https://github.com/spacetelescope/jwst_coronagraph_visibility
-  - Authors: Christopher Stark, Joseph Long, J. Brendan Hagan, Mees Fix and Bryony Nickson
-- Marshall Perrin's code contributions to the [breads](https://github.com/jruffio/breads) package
-  - Specifically here: https://github.com/jruffio/breads/blob/main/breads/jwst_tools/planning.py
+  - Authors: Christopher Stark, Joseph Long, J. Brendan Hagan, Mees Fix and
+    Bryony Nickson
+- Marshall Perrin's code contributions to the
+  [breads](https://github.com/jruffio/breads) package
+  - Specifically here:
+    https://github.com/jruffio/breads/blob/main/breads/jwst_tools/planning.py
   - Code for showing diffraction spikes
   - Inspiration for displaying IFU apertures
