@@ -193,7 +193,6 @@ for `whippot.modes.[[mode_name]].ComputePositions()`.
 - Spectral trace overlap: Plot spectral traces for a set of sources
 
 
-
 ### Tips on PA and Positions ###
 
 For targets with high proper motion, the user will have to propagate it
@@ -256,6 +255,8 @@ If the number of such files becomes "large", we may restructure the directories.
 The best way to extend WHIPPOT is to subclass the
 `whippot_tools.ComputePositions` class and override its methods and attributes.
 Examples can be seen in the files referenced above.
+
+You don't just have to override ComputePositions attributes and methods - you can also define mode-specific standalone plotting and analyis functions that read from the ComputePositions attributes. 
 
 ### New aperture masks ###
 

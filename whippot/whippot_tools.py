@@ -218,7 +218,7 @@ class ComputePositions():
         )
         self._diff_spike_len_setter = widgets.FloatText(
             value=widget_values.get("diff_spike_len", 4.),
-            description='Spike len [arcsec]',
+            description='Spike length [arcsec]',
             style={'description_width': 'initial'}
         )
         self._diff_spike_len_setter.observe(
