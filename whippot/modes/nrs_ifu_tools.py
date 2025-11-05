@@ -31,24 +31,25 @@ class ComputePositions(whippot_tools.ComputePositions):
         idl_ax, sky_ax = fig.get_axes()
 
         # channel_apernames = [f'MIRIFU_CHANNEL{i}{band}' for i in [1, 2, 3, 4]]
-        slit_apernames = [i for i in self.instr.apernames if 'NRS_IFU_SLICE' in i]
+        slit_apernames = sorted([i for i in self.instr.apernames if 'NRS_IFU_SLICE' in i])
 
         idl_patches, sky_patches = [], []
-        for apername in slit_apernames:
+        for i, apername in enumerate(slit_apernames):
             slit_params = dict(label=apername, zorder=-1, alpha=0.3, ec='k')
             new_aper = self.instr[apername]
             # idl
-            footprint = whippot_plots.transform_aper_footprint(
+            idl_footprint = whippot_plots.transform_aper_footprint(
                 new_aper, self.aperture, 'idl',
                 **slit_params,
             )
-            idl_patches.append(footprint)
             # sky
-            footprint = whippot_plots.transform_aper_footprint(
+            sky_footprint = whippot_plots.transform_aper_footprint(
                 new_aper, self.aperture, 'sky',
                 **slit_params,
             )
-            sky_patches.append(footprint)
+
+            idl_patches.append(idl_footprint)
+            sky_patches.append(sky_footprint)
 
         # adjust the axes
         whippot_plots.include_patches_in_axes(idl_ax, idl_patches)
