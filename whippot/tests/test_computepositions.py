@@ -65,3 +65,11 @@ def test_MiriCoron_ComputePositions(sci_aper):
     cp = miri_coron_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
+
+
+def test_MiriMRS_ComputePositions():
+    config = default_init.copy()
+    config.update({'instr': 'nirspec', 'sci_aper': 'nrs_full_ifu'})
+    cp = miri_mrs_tools.ComputePositions(initial_values=config)
+    fig = cp.plot_scene()
+    whippot_tools.plt.close(fig)

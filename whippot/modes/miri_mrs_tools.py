@@ -10,11 +10,6 @@ import numpy as np
 from whippot import whippot_tools
 from whippot import whippot_plots
 
-# trace size reference: Andreea Petric, personal communication
-aper = whippot_tools.Siaf("MIRI")['MIRIM_FULL']
-TRACE_UP = 100 * aper.YSciScale
-TRACE_DOWN = 300 * aper.YSciScale
-
 # Make a new class that overrides whippot_tools.ComputePositions.plot_scene()
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
