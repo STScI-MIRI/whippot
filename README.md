@@ -165,7 +165,7 @@ for `whippot.modes.[[mode_name]].ComputePositions()`.
 
   * MIRI LRS Slitless Spectroscopy
     - `whippot/modes/miri_lrs_slitless_tools.py`
-    - Shows approximate positions spectral traces
+    - Shows approximate positions spectral traces.
     - Overlays the SLITLESS_UPPER and SLITLESS_LOWER apertures.
   * MIRI Wide-field Slitless Spectroscopy
     - `whippot/modes/miri_wfss_tools.py`
@@ -174,6 +174,9 @@ for `whippot.modes.[[mode_name]].ComputePositions()`.
     - `whippot/modes/miri_mrs_tools.py`
     - Shows footprint of all 4 channels.
     - Shows footprints of slices for the selected channel.
+  * NIRSpec IFU
+    - `whippot/modes/nrs_ifu_tools.py`
+    - Shows overall IFU footprint as well as individual slices.
 
 
 ## Examples, Tips and Tricks ##
