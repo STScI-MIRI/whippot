@@ -5,6 +5,7 @@ from whippot.modes import (
     miri_lrs_slitless_tools,
     miri_wfss_tools,
     miri_mrs_tools,
+    miri_coron_tools,
 )
 
 
@@ -18,7 +19,7 @@ sources = {
 
 default_init = {
     'instr': 'miri',
-    'sci_aper': 'mirim_illum', 
+    'sci_aper': 'mirim_full', 
     'pa': 290.,
     'sci_ra': sources['SCI'].ra.deg, 'sci_dec': sources['SCI'].dec.deg,
     'other_stars': '',
@@ -28,22 +29,39 @@ default_init = {
 default_init['other_stars'] = "\n".join(f"{k}: ({v.ra.deg}, {v.dec.deg})" for k, v in sources.items())
 
 # test that things run without crashing
-def test_ComputePositions():
+def test_ComputePositions(cp):
     cp = whippot_tools.ComputePositions(initial_values=default_init)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
 
 def test_MiriLrsSlitless_ComputePositions():
-    cp = miri_lrs_slitless_tools.ComputePositions(initial_values=default_init)
+    config = default_init.copy()
+    config.update({'sci_aper': 'MIRIM_SLITLESS'})
+    cp = miri_lrs_slitless_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
 
 def test_MiriWFSS_ComputePositions():
-    cp = miri_wfss_tools.ComputePositions(initial_values=default_init)
+    config = default_init.copy()
+    config.update({'sci_aper': 'MIRIM_ILLUM'})
+    cp = miri_wfss_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
 
 def test_MiriMRS_ComputePositions():
-    cp = miri_mrs_tools.ComputePositions(initial_values=default_init)
+    config = default_init.copy()
+    config.update({'sci_aper': 'MIRIFU_CHANNEL2C'})
+    cp = miri_mrs_tools.ComputePositions(initial_values=config)
+    fig = cp.plot_scene()
+    whippot_tools.plt.close(fig)
+
+@pytest.mark.parametrize(
+    'sci_aper',
+    ['MIRIM_MASK1550','MIRIM_MASKLYOT'],
+)
+def test_MiriCoron_ComputePositions(sci_aper):
+    config = default_init.copy()
+    config.update({'sci_aper': sci_aper})
+    cp = miri_coron_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
