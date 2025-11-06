@@ -30,8 +30,7 @@ def miri_lyot_mask(aperture, kwargs={}) -> patches.PathPatch:
     spot = path.Path.circle((0, 0), radius=2.16)
     # mask = mpl.collections.PatchCollection([bar, spot], **kwargs)
     compound_vertices = spot.vertices.tolist() + bar.vertices.tolist()
-    compound_codes = spot.codes.tolist() + bar.codes.tolist()
-    compound_path = path.Path(compound_vertices, compound_codes)
+    compound_path = path.Path(compound_vertices, closed=True)
     kwargs['ec'] = kwargs.get('ec', 'none')
     mask = patches.PathPatch(compound_path, **kwargs)
     return mask

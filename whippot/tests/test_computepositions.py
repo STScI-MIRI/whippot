@@ -6,6 +6,7 @@ from whippot.modes import (
     miri_wfss_tools,
     miri_mrs_tools,
     miri_coron_tools,
+    nrs_ifu_tools,
 )
 
 
@@ -29,7 +30,7 @@ default_init = {
 default_init['other_stars'] = "\n".join(f"{k}: ({v.ra.deg}, {v.dec.deg})" for k, v in sources.items())
 
 # test that things run without crashing
-def test_ComputePositions(cp):
+def test_ComputePositions():
     cp = whippot_tools.ComputePositions(initial_values=default_init)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
@@ -67,9 +68,9 @@ def test_MiriCoron_ComputePositions(sci_aper):
     whippot_tools.plt.close(fig)
 
 
-def test_MiriMRS_ComputePositions():
+def test_NirspecIFU_ComputePositions():
     config = default_init.copy()
     config.update({'instr': 'nirspec', 'sci_aper': 'nrs_full_ifu'})
-    cp = miri_mrs_tools.ComputePositions(initial_values=config)
+    cp = nrs_ifu_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
