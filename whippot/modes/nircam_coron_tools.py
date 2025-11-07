@@ -1,5 +1,5 @@
 """
-Miscellaneous plot methods
+NIRCam Coronagraphy
 """
 import re
 

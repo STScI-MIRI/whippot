@@ -161,8 +161,12 @@ re-compute with different values. To visualize the source positions, call the
 While the basic WHIPPOT interface works with any aperture on Webb, a few
 observing modes enumerated below have data overlays that provide more specific
 information. They can be used by substituting `whippot_tools.ComputePositions()`
-for `whippot.modes.[[mode_name]].ComputePositions()`.
+for `whippot.modes.[[mode_name]].ComputePositions()`. Available modes can be
+listed with the command `whippot_tools.list_available_modes()`.
 
+  * MIRI Coronagraphy
+    - `whippot/modes/miri_coron_tools.py`
+    - Shows both the illuminated aperture and the full readout aperture.
   * MIRI LRS Slitless Spectroscopy
     - `whippot/modes/miri_lrs_slitless_tools.py`
     - Shows approximate positions spectral traces.
@@ -172,10 +176,13 @@ for `whippot.modes.[[mode_name]].ComputePositions()`.
     - Shows approximate positions spectral traces
   * MIRI MRS
     - `whippot/modes/miri_mrs_tools.py`
-    - Shows footprint of all 4 channels.
+    - Shows footprint of all 4 MRS channels.
     - Shows footprints of slices for the selected channel.
+  * NIRCam Coronagraphy
+    - `whippot/modes/nircam_coron_tools.py`
+    - Filters the very, very long list of NIRCam aperture names down to the ones relevant for coronagraphy
   * NIRSpec IFU
-    - `whippot/modes/nrs_ifu_tools.py`
+    - `whippot/modes/nirspec_ifu_tools.py`
     - Shows overall IFU footprint as well as individual slices.
 
 

@@ -7,7 +7,7 @@ from whippot.modes import (
     miri_wfss_tools,
     miri_mrs_tools,
     miri_coron_tools,
-    nrs_ifu_tools,
+    nirspec_ifu_tools,
 )
 
 instr_abbr = {
@@ -85,7 +85,7 @@ def test_MiriCoron_ComputePositions(sci_aper):
 def test_NirspecIFU_ComputePositions():
     config = default_init.copy()
     config.update({'instr': 'nirspec', 'sci_aper': 'nrs_full_ifu'})
-    cp = nrs_ifu_tools.ComputePositions(initial_values=config)
+    cp = nirspec_ifu_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
     return

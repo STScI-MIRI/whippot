@@ -1,5 +1,5 @@
 """
-Miscellaneous plot methods
+MIRI LRS Slitless Spectropy
 """
 import matplotlib as mpl
 from matplotlib import pyplot as plt

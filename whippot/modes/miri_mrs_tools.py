@@ -1,5 +1,5 @@
 """
-Miscellaneous plot methods
+MIRI MRS
 """
 import re
 

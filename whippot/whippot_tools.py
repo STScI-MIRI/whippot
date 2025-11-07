@@ -1,3 +1,8 @@
+from pathlib import Path
+
+import ipywidgets as widgets
+from ipywidgets import Layout
+
 import numpy as np
 
 import matplotlib as mpl
@@ -8,9 +13,6 @@ from astropy import units
 
 import pysiaf
 from pysiaf import Siaf
-
-import ipywidgets as widgets
-from ipywidgets import Layout
 
 from whippot import whippot_plots
 from whippot import list_of_masks as lom
@@ -70,8 +72,10 @@ class ComputePositions():
 
     # use these functions to filter the list of aperture options
     def _prefilter_apertures(self, aperture_list : list) -> list:
+        """apply this filter before the ROI check"""
         return aperture_list
     def _postfilter_apertures(self, aperture_list : list) -> list:
+        """apply this filter after the ROI check"""
         return aperture_list
     def _filter_aperture_options(self):
         # get all available apertures and names
@@ -710,3 +714,28 @@ def sky_to_idl(
     return idl_coords
 
 
+
+def list_available_modes():
+    """List the available mode-specific classes"""
+    from whippot import modes
+    mode_folder = Path(modes.__file__).parent
+    modes = sorted(mode_folder.glob("[!_]*py"))
+    print("Available modes:")
+    for mode in modes:
+        name = mode.stem
+        with open(mode, 'r') as f:
+            descr = f.readlines()[1].strip()
+        print(f"\t{ name } ({ descr })")
+    print("")
+    print("""Usage example:
+    from whippot.modes import [mode_name]
+
+    cp = [mode_name].ComputePositions()
+    cp.ui
+
+    OR
+
+    cp = [mode_name].ComputePositions(parameter_dict)
+    cp.plot_scene()
+    """)
+    return

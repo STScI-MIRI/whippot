@@ -1,5 +1,5 @@
 """
-Miscellaneous plot methods
+MIRI Wide-Field Slitless Spectroscopy
 """
 import matplotlib as mpl
 from matplotlib import pyplot as plt
