@@ -14,19 +14,19 @@ from whippot import whippot_plots
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
 
-    def filter_aperture_options(self):
+    def _prefilter_apertures(self, aperture_list : list) -> list:
         """
         Function that returns a filtered list of apertures that can be selected
         Written this way so that it can be overriden by subclasses
         """
-        apernames = [i for i in  whippot_tools.Siaf(self.parameter_values['instr']).apernames if 'MIRIFU' in i]
-        return list(apernames)
+        aperture_list = [i for i in  aperture_list if 'MIRIFU' in i]
+        return list(aperture_list)
 
-    def plot_scene(self, *args) -> mpl.figure.Figure:
+    def plot_scene(self, *args, frame='idl') -> mpl.figure.Figure:
         # copy the docstring
         super().plot_scene.__doc__
 
-        fig = super().plot_scene(self, *args, frame='idl')
+        fig = super().plot_scene(self, *args, frame=frame)
         # get the IDL and Sky axes
         idl_ax, sky_ax = fig.get_axes()
 

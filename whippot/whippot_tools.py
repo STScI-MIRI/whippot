@@ -69,27 +69,27 @@ class ComputePositions():
         return defaults
 
     # use these functions to filter the list of aperture options
-    def prefilter_apertures(self, aperture_list : list) -> list:
+    def _prefilter_apertures(self, aperture_list : list) -> list:
         return aperture_list
-    def postfilter_apertures(self, aperture_list : list) -> list:
+    def _postfilter_apertures(self, aperture_list : list) -> list:
         return aperture_list
-    def filter_aperture_options(self):
+    def _filter_aperture_options(self):
         # get all available apertures and names
         apertures = Siaf(self._instr_picker.value).apertures
         apernames = [name.upper() for name, aper in apertures.items()]
 
         # filter the names
-        apernames = self.prefilter_apertures(apernames)
+        apernames = self._prefilter_apertures(apernames)
         if self._exclude_roi_chkbx.value:
             apernames = [
                 name.upper() for name in apernames if apertures[name].AperType != 'ROI'
             ]
-        apernames = self.postfilter_apertures(apernames)
+        apernames = self._postfilter_apertures(apernames)
         return apernames
 
 
     def _update_aperture_options(self, *args):
-        self._sci_apers = self.filter_aperture_options()
+        self._sci_apers = self._filter_aperture_options()
         self._sci_aper_picker.options = self._sci_apers
         curr_aper = self.parameter_values['sci_aper'].upper()
         if curr_aper in self._sci_apers:
