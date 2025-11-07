@@ -14,7 +14,7 @@ TRACE_DOWN = 300 * aper.YSciScale
 # Make a new class that overrides whippot_tools.ComputePositions.plot_scene()
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
-    def plot_scene(self, *args) -> mpl.figure.Figure:
+    def plot_scene(self, *args, frame='idl') -> mpl.figure.Figure:
         # copy the docstring
         super().plot_scene.__doc__
 
@@ -25,10 +25,10 @@ class ComputePositions(whippot_tools.ComputePositions):
         # also show the SLITLESSUPPER and LOWER apertures
         for apername in ['MIRIM_FULL', 'MIRIM_ILLUM']:
             new_aper = self.instr[apername]
-            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, 'idl', label=apername)
+            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, to_frame=frame, label=apername)
             whippot_plots.include_patches_in_axes(idl_ax, [footprint], invert_ra_axis=False)
             idl_ax.add_patch(footprint)
-            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, 'sky', label=apername)
+            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, to_frame='sky', label=apername)
             whippot_plots.include_patches_in_axes(sky_ax, [footprint], invert_ra_axis=True)
             sky_ax.add_patch(footprint)
 

@@ -19,7 +19,7 @@ from whippot import list_of_masks as lom
 
 
 def plot_aper_to_frame(
-    aper : pysiaf.aperture.JwstAperture,
+    aper : pysiaf.JwstAperture,
     star_positions : dict[str, np.ndarray] = {},
     frame_from : str = 'idl',
     frame_to : str = 'idl',
@@ -36,7 +36,7 @@ def plot_aper_to_frame(
 
     Parameters
     ----------
-    aper : pysiaf.aperture.JwstAperture
+    aper : pysiaf.JwstAperture
       the aperture to plot in IDL
     star_positions : dict[str, np.ndarray] = {}
       dictionary of star coordinates in IDL
@@ -259,7 +259,7 @@ def transform_aper_footprint(
 
 def transform_patch_footprint(
     patch : mpl.patches.Patch,
-    aper : pysiaf.aperture.JwstAperture,
+    aper : pysiaf.JwstAperture | pysiaf.HstAperture,
     frame_from : str = 'idl',
     frame_to : str = 'sky',
     **patch_kwargs,
@@ -270,7 +270,7 @@ def transform_patch_footprint(
     Parameters
     ----------
     patch : mpl.patches.Patch
-    aper : pysiaf.aperture.JwstAperture
+    aper : pysiaf.JwstAperture | pysiaf.HstAperture
     frame_from : str = 'idl'
     frame_to : str = 'sky'
 

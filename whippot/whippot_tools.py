@@ -22,10 +22,10 @@ from whippot import list_of_masks as lom
 #------------------------------------------------------#
 
 # define user interface
-instruments = ['NIRCAM', 'NIRSPEC', 'NIRISS', 'MIRI', 'FGS']
+instruments = ['NIRCAM', 'NIRSPEC', 'NIRISS', 'MIRI', 'FGS', 'HST']
 
 class ComputePositions():
-    def __init__(self, initial_values={}):
+    def __init__(self, initial_values : dict = {}) -> None:
         """
         Generate the Position and Offset Computation GUI.
         Can initialize from a dictionary containing the entries (e.g.):
@@ -63,6 +63,8 @@ class ComputePositions():
         if initial_values != {}:
             self.compute_positions()
 
+        return
+
     def get_default_parameters(self) -> dict:
         defaults = {
           'instr': 'MIRI',
@@ -75,7 +77,6 @@ class ComputePositions():
           'show_diffraction_spikes' : False,
           'diff_spike_len': 4., 
         }
-
         return defaults
 
     # use these functions to filter the list of aperture options
@@ -100,7 +101,7 @@ class ComputePositions():
         return apernames
 
 
-    def _update_aperture_options(self, *args):
+    def _update_aperture_options(self, *args) -> None:
         self._sci_apers = self._filter_aperture_options()
         self._sci_aper_picker.options = self._sci_apers
         curr_aper = self.parameter_values['sci_aper'].upper()
@@ -108,8 +109,9 @@ class ComputePositions():
             self._sci_aper_picker.value = curr_aper
         else:
             self._sci_aper_picker.value = self._sci_apers[0]
+        return
 
-    def _update_parameter_dict(self, *args):
+    def _update_parameter_dict(self, *args) -> None:
         # read in the GUI fields to the parameter dictionary
         self.parameter_values['instr'] = self._instr_picker.value
         self.parameter_values['sci_aper'] = self._sci_aper_picker.value
@@ -135,8 +137,9 @@ class ComputePositions():
             self._SELF_TA = True
         else:
             self._SELF_TA = False
+        return
 
-    def _update_widgets_from_parameters(self):
+    def _update_widgets_from_parameters(self) -> None:
         self._instr_picker.value = self.parameter_values['instr']
         self._sci_aper_picker.value = self.parameter_values['sci_aper']
         self._PA_setter.value = self.parameter_values['pa']
@@ -161,6 +164,7 @@ class ComputePositions():
             self._SELF_TA = True
         else:
             self._SELF_TA = False
+        return
 
     def get_aper(self):
         if hasattr(self, "aperture"):
@@ -532,7 +536,7 @@ def compute_idl_after_ta(
     slew_from: dict,
     slew_to: dict,
     v3pa: float,
-    sci_aper : pysiaf.aperture.JwstAperture,
+    sci_aper : pysiaf.JwstAperture | pysiaf.HstAperture,
     other_stars : list = [],
 ) -> list[dict]:
     """
@@ -583,7 +587,7 @@ def compute_offsets(
         slew_from: dict,
         slew_to: dict,
         v3pa: float,
-        sci_aper : pysiaf.aperture.JwstAperture,
+        sci_aper : pysiaf.JwstAperture | pysiaf.HstAperture,
         other_stars : list = [],
         verbose : int = 1,
         return_offsets : bool = False,
@@ -661,7 +665,7 @@ def compute_offsets(
 
 def create_attmat(
         position : SkyCoord,
-        aper : pysiaf.aperture.JwstAperture,
+        aper : pysiaf.JwstAperture | pysiaf.HstAperture,
         pa : float,
         idl_offset : tuple[float, float] = (0., 0.),
         set_matrix : bool = True,
@@ -674,7 +678,7 @@ def create_attmat(
     ----------
     position : SkyCoord
       skycoord position on the sky
-    aper : pysiaf.aperture.JwstAperture
+    aper : pysiaf.JwstAperture | pysiaf.HstAperture
       pySIAF-defined aperture object
     pa : float
       PA angle with respect to the V3 axis measured at the aperture reference
@@ -706,7 +710,7 @@ def create_attmat(
 
 def sky_to_idl(
         stars : list[dict],
-        aper : pysiaf.aperture.JwstAperture,
+        aper : pysiaf.JwstAperture | pysiaf.HstAperture, 
         pa : float,
         idl_offset : tuple[float, float] = (0., 0.)
 ) -> list[dict]:
