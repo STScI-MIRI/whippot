@@ -366,7 +366,7 @@ class ComputePositions():
 
         aper = self.get_aper()
 
-        fig.suptitle(aper.AperName)
+        fig.suptitle(aper.AperName + "\n" + f"PA: {self.parameter_values['pa']} deg")
 
         # the function to generate mask patches
         # default is a function that returns None
