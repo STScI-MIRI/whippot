@@ -262,8 +262,8 @@ def transform_patch_footprint(
 
     """
     p = patch.get_path()
-    codes = patch.get_path().codes
-    x, y = patch.get_verts().T
+    codes = p.codes
+    x, y = p.vertices.T
     transf_verts = np.array(aper.convert(x, y, frame_from, frame_to)).T
     transf_patch = patches.PathPatch(
         path.Path(list(transf_verts), codes=codes),

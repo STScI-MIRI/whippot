@@ -1,6 +1,7 @@
 import pytest
 
 from whippot import whippot_tools
+from whippot import list_of_masks as lom
 from whippot.modes import (
     miri_lrs_slitless_tools,
     miri_wfss_tools,
@@ -9,6 +10,12 @@ from whippot.modes import (
     nrs_ifu_tools,
 )
 
+instr_abbr = {
+    'MIR': 'MIRI',
+    'NRC': 'NIRCam',
+    'NRS': 'NIRSpec',
+    'NIS': 'NIRISS',
+}
 
 sources = {
     'SCI': whippot_tools.SkyCoord("05 24 20.7552 -70 05 1.60", frame='icrs', unit=("hourangle","degree")),
@@ -24,16 +31,19 @@ default_init = {
     'pa': 290.,
     'sci_ra': sources['SCI'].ra.deg, 'sci_dec': sources['SCI'].dec.deg,
     'other_stars': '',
-    'exclude_roi': True,
+    'exclude_roi': False,
 }
 # add a multi-line string of the other stars, copied from the cell above
 default_init['other_stars'] = "\n".join(f"{k}: ({v.ra.deg}, {v.dec.deg})" for k, v in sources.items())
+
+# mode-specific initializations
 
 # test that things run without crashing
 def test_ComputePositions():
     cp = whippot_tools.ComputePositions(initial_values=default_init)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
+    return
 
 def test_MiriLrsSlitless_ComputePositions():
     config = default_init.copy()
@@ -41,6 +51,7 @@ def test_MiriLrsSlitless_ComputePositions():
     cp = miri_lrs_slitless_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
+    return
 
 def test_MiriWFSS_ComputePositions():
     config = default_init.copy()
@@ -48,6 +59,7 @@ def test_MiriWFSS_ComputePositions():
     cp = miri_wfss_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
+    return
 
 def test_MiriMRS_ComputePositions():
     config = default_init.copy()
@@ -55,6 +67,7 @@ def test_MiriMRS_ComputePositions():
     cp = miri_mrs_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
+    return
 
 @pytest.mark.parametrize(
     'sci_aper',
@@ -66,6 +79,7 @@ def test_MiriCoron_ComputePositions(sci_aper):
     cp = miri_coron_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
+    return
 
 
 def test_NirspecIFU_ComputePositions():
@@ -74,3 +88,22 @@ def test_NirspecIFU_ComputePositions():
     cp = nrs_ifu_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
+    return
+
+
+
+@pytest.mark.parametrize(
+    'apername',
+    sorted(lom.list_of_masks.keys())
+)
+def test_masks(apername):
+    config = default_init.copy()
+    config.update({
+        'instr': instr_abbr[apername[:3]],
+        'sci_aper': apername
+    })
+    print(config)
+    cp = whippot_tools.ComputePositions(initial_values=config)
+    fig = cp.plot_scene()
+    whippot_tools.plt.close(fig)
+    return
