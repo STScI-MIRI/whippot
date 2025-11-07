@@ -92,6 +92,15 @@ def plot_aper_to_frame(
                    label=f"ACQ",
                    marker='x',
                    s=100)
+        if show_diffraction_spikes:
+            draw_diffraction_spikes(
+                ax,
+                aper,
+                {'ACQ': star_positions['ACQ']},
+                source_frame=frame_to,
+                spike_length=spike_length,
+                color = 'k',
+            )
     if 'SCI' in star_positions.keys():
         sci_pos = star_positions["SCI"]
         ax.scatter(*sci_pos,
@@ -99,23 +108,32 @@ def plot_aper_to_frame(
                    marker="*",
                    s=100,
                    c='k')
+        if show_diffraction_spikes:
+            draw_diffraction_spikes(
+                ax,
+                aper,
+                {'SCI': star_positions['SCI']},
+                source_frame=frame_to,
+                spike_length=spike_length,
+                color = 'k',
+            )
     for star, position in star_positions.items():
         if star in ['SCI','ACQ']:
-            continue
-        ax.scatter(*position,
-                   # c='k',
-                   label=star,
-                   marker='.',
-                   s=100)
-
-    if show_diffraction_spikes:
-        draw_diffraction_spikes(
-            ax,
-            aper,
-            star_positions,
-            source_frame=frame_to,
-            spike_length=spike_length,
-        )
+            pass
+        else:
+            scat = ax.scatter(*position,
+                              label=star,
+                              marker='.',
+                              s=100)
+            if show_diffraction_spikes:
+                draw_diffraction_spikes(
+                    ax,
+                    aper,
+                    {star: position},
+                    source_frame=frame_to,
+                    spike_length=spike_length,
+                    color = scat.get_fc(),
+                )
 
     if show_legend:
         ax.legend(loc=(1.05, 0.3))
@@ -161,8 +179,8 @@ def draw_diffraction_spikes(
     aperture,
     sources={},
     source_frame = 'idl',
-    # show_inner_diff_spikes : bool = False,
     spike_length : float = 4.,
+    color = 'red',
 ) -> None:
     """
     Draw diffraction spikes on the sources at the given position
@@ -193,7 +211,7 @@ def draw_diffraction_spikes(
                 # pos[0] - np.asarray([inner_spikelen, outer_spikelen]) * np.sin(ang_rad),
                 # pos[1] + np.asarray([inner_spikelen, outer_spikelen]) * np.cos(ang_rad),
                 *spike_pts,
-                color='red', lw=1, marker='none',
+                color=color, lw=1, marker='none',
             )
     #         # smaller inner diffraction spikes, from overall primary
     #         if show_inner_diff_spikes:
