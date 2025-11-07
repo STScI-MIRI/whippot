@@ -93,59 +93,58 @@ def miri_4qpm_mask(aperture, kwargs={}) -> patches.PathPatch:
     mask = patches.PathPatch(path.Path(verts, closed=True), **kwargs)
     return mask
 
-def nrc_coron_mask_old(aperture, kwargs={}) -> patches.PathPatch:
-    """
-    Define the masks for the NIRCam coronagraphic apertures
-    "Borrowed" from the JWST Coronagraphic Visibility Tool
-    """
-    mask_artists = []
-    aperture_name = aperture.AperName
-    arcsec_per_pixel = np.average([aperture.XSciScale, aperture.YSciScale])
-    x_sci_size, y_sci_size = aperture.XSciSize, aperture.YSciSize
-    if aperture_name[-1] == 'R':
-        if '210R' in aperture_name:
-            radius_arcsec = 0.40
-        elif '335R' in aperture_name:
-            radius_arcsec = 0.64
-        elif '430R' in aperture_name:
-            radius_arcsec = 0.82
-        else:
-            raise RuntimeError("Invalid mask!")
-        # make a circle
-        # mask_artists.append(patches.Circle((0, 0), radius=radius_arcsec, alpha=0.5))
-        mask_artists.append(path.Path.circle((0., 0.), radius=radius_arcsec))
-    else:
-        x_verts = x_sci_size / 2 * np.array([-1, 1, 1, -1])
-        if 'LWB' in aperture_name:
-            thin_extent_arcsec = 0.58 * (2 / 4)
-            thick_extent_arcsec = 0.58 * (6 / 4)
-            # x_verts *= -1  # flip LWB left to right
-        elif 'SWB' in aperture_name:
-            thin_extent_arcsec = 0.27 * (2 / 4)
-            thick_extent_arcsec = 0.27 * (6 / 4)
-        else:
-            raise RuntimeError("Invalid mask!")
+# def nrc_coron_mask_old(aperture, kwargs={}) -> patches.PathPatch:
+#     """
+#     Define the masks for the NIRCam coronagraphic apertures
+#     "Borrowed" from the JWST Coronagraphic Visibility Tool
+#     """
+#     mask_artists = []
+#     aperture_name = aperture.AperName
+#     arcsec_per_pixel = np.average([aperture.XSciScale, aperture.YSciScale])
+#     x_sci_size, y_sci_size = aperture.XSciSize, aperture.YSciSize
+#     if aperture_name[-1] == 'R':
+#         if '210R' in aperture_name:
+#             radius_arcsec = 0.40
+#         elif '335R' in aperture_name:
+#             radius_arcsec = 0.64
+#         elif '430R' in aperture_name:
+#             radius_arcsec = 0.82
+#         else:
+#             raise RuntimeError("Invalid mask!")
+#         # make a circle
+#         # mask_artists.append(patches.Circle((0, 0), radius=radius_arcsec, alpha=0.5))
+#         mask_artists.append(path.Path.circle((0., 0.), radius=radius_arcsec))
+#     else:
+#         x_verts = x_sci_size / 2 * np.array([-1, 1, 1, -1])
+#         if 'LWB' in aperture_name:
+#             thin_extent_arcsec = 0.58 * (2 / 4)
+#             thick_extent_arcsec = 0.58 * (6 / 4)
+#             # x_verts *= -1  # flip LWB left to right
+#         elif 'SWB' in aperture_name:
+#             thin_extent_arcsec = 0.27 * (2 / 4)
+#             thick_extent_arcsec = 0.27 * (6 / 4)
+#         else:
+#             raise RuntimeError("Invalid mask!")
         
-        y_verts = np.array([
-            thin_extent_arcsec / arcsec_per_pixel,
-            thick_extent_arcsec / arcsec_per_pixel,
-            -thick_extent_arcsec / arcsec_per_pixel,
-            -thin_extent_arcsec / arcsec_per_pixel
-        ])
-        x_idl_verts, y_idl_verts = aperture.sci_to_idl(x_verts + aperture.XSciRef, y_verts + aperture.YSciRef)
-        verts = np.concatenate([x_idl_verts[:, np.newaxis], y_idl_verts[:, np.newaxis]], axis=1)
-        # patch = patches.Polygon(verts, alpha=0.5)
-        patch = path.Path(verts, closed=True)
-        mask_artists.append(patch)
-    mask = mpl.collections.PatchCollection(mask_artists, **kwargs)
-    return mask
+#         y_verts = np.array([
+#             thin_extent_arcsec / arcsec_per_pixel,
+#             thick_extent_arcsec / arcsec_per_pixel,
+#             -thick_extent_arcsec / arcsec_per_pixel,
+#             -thin_extent_arcsec / arcsec_per_pixel
+#         ])
+#         x_idl_verts, y_idl_verts = aperture.sci_to_idl(x_verts + aperture.XSciRef, y_verts + aperture.YSciRef)
+#         verts = np.concatenate([x_idl_verts[:, np.newaxis], y_idl_verts[:, np.newaxis]], axis=1)
+#         # patch = patches.Polygon(verts, alpha=0.5)
+#         patch = path.Path(verts, closed=True)
+#         mask_artists.append(patch)
+#     mask = mpl.collections.PatchCollection(mask_artists, **kwargs)
+#     return mask
 
 def nrc_coron_mask(aperture, kwargs={}) -> patches.PathPatch:
     """
     Define the masks for the NIRCam coronagraphic apertures
     "Borrowed" from the JWST Coronagraphic Visibility Tool
     """
-    mask_artists = []
     aperture_name = aperture.AperName
     arcsec_per_pixel = np.average([aperture.XSciScale, aperture.YSciScale])
     x_sci_size, y_sci_size = aperture.XSciSize, aperture.YSciSize

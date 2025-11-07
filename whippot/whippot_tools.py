@@ -68,15 +68,28 @@ class ComputePositions():
 
         return defaults
 
+    # use these functions to filter the list of aperture options
+    def prefilter_apertures(self, aperture_list : list) -> list:
+        return aperture_list
+    def postfilter_apertures(self, aperture_list : list) -> list:
+        return aperture_list
     def filter_aperture_options(self):
+        # get all available apertures and names
         apertures = Siaf(self._instr_picker.value).apertures
         apernames = [name.upper() for name, aper in apertures.items()]
+
+        # filter the names
+        apernames = self.prefilter_apertures(apernames)
         if self._exclude_roi_chkbx.value:
-            apernames = [name.upper() for name, aper in apertures.items() if aper.AperType != 'ROI']
+            apernames = [
+                name.upper() for name in apernames if apertures[name].AperType != 'ROI'
+            ]
+        apernames = self.postfilter_apertures(apernames)
         return apernames
 
+
     def _update_aperture_options(self, *args):
-        self._sci_apers = self.filter_aperture_options()#[i for i in Siaf(self._instr_picker.value).apernames]
+        self._sci_apers = self.filter_aperture_options()
         self._sci_aper_picker.options = self._sci_apers
         curr_aper = self.parameter_values['sci_aper'].upper()
         if curr_aper in self._sci_apers:
@@ -192,7 +205,7 @@ class ComputePositions():
             description='Instrument'
         )
         # run update_apers when instr_picker changes
-        self._instr_picker.observe(self._update_aperture_options)
+        self._instr_picker.observe(self._update_aperture_options, names=['value'])
         # set self.sci_apers
         self._sci_aper_picker = widgets.Dropdown(description='Aperture')
         self._exclude_roi_chkbx = widgets.Checkbox(
@@ -201,7 +214,7 @@ class ComputePositions():
             disabled=False,
             indent=False
         )
-        self._exclude_roi_chkbx.observe(self._update_aperture_options)
+        self._exclude_roi_chkbx.observe(self._update_aperture_options, names=['value'])
         # initialize the apers
         self._update_aperture_options()
         # to show or not to show the full aperture list
@@ -214,7 +227,10 @@ class ComputePositions():
             indent=False
         )
         self._show_spikes_chkbx.observe(
-            lambda _: self.parameter_values.update({'show_diffraction_spikes': self._show_spikes_chkbx.value})
+            lambda _: self.parameter_values.update({
+                'show_diffraction_spikes': self._show_spikes_chkbx.value,
+            }),
+            names=['value'],
         )
         self._diff_spike_len_setter = widgets.FloatText(
             value=widget_values.get("diff_spike_len", 4.),
@@ -222,7 +238,8 @@ class ComputePositions():
             style={'description_width': 'initial'}
         )
         self._diff_spike_len_setter.observe(
-            lambda _: self.parameter_values.update({'diff_spike_len': self._diff_spike_len_setter.value})
+            lambda _: self.parameter_values.update({'diff_spike_len': self._diff_spike_len_setter.value}),
+            names=['value'],
         )
 
 
