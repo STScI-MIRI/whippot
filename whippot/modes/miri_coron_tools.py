@@ -19,7 +19,7 @@ class ComputePositions(whippot_tools.ComputePositions):
         super().plot_scene.__doc__
 
         fig = super().plot_scene(self, *args)
-        if self.SELF_TA:
+        if self._SELF_TA:
             idl_ax, sky_ax = fig.get_axes()
             idl_axes, sky_axes = [idl_ax], [sky_ax]
         else:

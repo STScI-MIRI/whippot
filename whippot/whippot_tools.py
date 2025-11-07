@@ -49,9 +49,17 @@ class ComputePositions():
         self.instr = None
         self.aperture = None
         # are we doing TA on the same star or a different star?
-        self.SELF_TA = True
+        self._SELF_TA = True
+
+        # these will store the final positions
+        self.offset_to_sci = (0, 0)
+        self.idl_coords_after_ta = {}
+        self.idl_coords_after_slew = {}
+
+        # make the UI
         self.ui = self._make_ui()
-        # if an initial dictionary is provided, run the computations.
+
+        # finally, if an initial dictionary is provided, run the computations.
         if initial_values != {}:
             self.compute_positions()
 
@@ -124,9 +132,9 @@ class ComputePositions():
         acq_ra, acq_dec = self.parameter_values['acq_ra'], self.parameter_values['acq_dec'] 
         sci_ra, sci_dec = self.parameter_values['sci_ra'], self.parameter_values['sci_dec'] 
         if (acq_ra == sci_ra) and (acq_dec == sci_dec):
-            self.SELF_TA = True
+            self._SELF_TA = True
         else:
-            self.SELF_TA = False
+            self._SELF_TA = False
 
     def _update_widgets_from_parameters(self):
         self._instr_picker.value = self.parameter_values['instr']
@@ -150,9 +158,9 @@ class ComputePositions():
         acq_ra, acq_dec = self.parameter_values['acq_ra'], self.parameter_values['acq_dec'] 
         sci_ra, sci_dec = self.parameter_values['sci_ra'], self.parameter_values['sci_dec'] 
         if (acq_ra == sci_ra) and (acq_dec == sci_dec):
-            self.SELF_TA = True
+            self._SELF_TA = True
         else:
-            self.SELF_TA = False
+            self._SELF_TA = False
 
     def get_aper(self):
         if hasattr(self, "aperture"):
@@ -295,6 +303,11 @@ class ComputePositions():
         self._output_offset = widgets.Output()
         self._output_before = widgets.Output()
         self._output_after = widgets.Output()
+        # self._interactive_output = widgets.interactive_output(
+        #     # lambda pa: print(pa),
+        #     self._format_offsets,
+        #     {'cp': self._PA_setter}
+        # )
 
 
     def _make_ui(self):
@@ -342,7 +355,6 @@ class ComputePositions():
         output_grid[0, 2] = self._output_after
         ui = widgets.VBox([
             grid, output_grid
-            # widgets.HBox([, self.output_before, self.output_after]),
         ])
         return ui
 
@@ -354,7 +366,7 @@ class ComputePositions():
         ----------
         *args is a dummy argument used to make the function compatible with ipywidgets calls
         """
-        nrows = 1 if self.SELF_TA else 2
+        nrows = 1 if self._SELF_TA else 2
         ncols = 2
         fig, axes = plt.subplots(
             nrows=nrows,
@@ -375,7 +387,7 @@ class ComputePositions():
 
         show_spikes = self.parameter_values['show_diffraction_spikes']
         i = 0
-        if not self.SELF_TA:
+        if not self._SELF_TA:
             fig = whippot_plots.plot_aper_to_frame(
                 self.aperture,
                 self.idl_coords_after_ta,
@@ -431,6 +443,29 @@ class ComputePositions():
     def show_ui(self):
         return self.ui
 
+
+    def clear_output(self):
+        self._output_offset.clear_output()
+        self._output_before.clear_output()
+        self._output_after.clear_output()
+
+    # some functions to define the output formatting with widget capturing
+    def _format_offsets(self, **args):
+        outputstr = "Special Requirement -> Offset values\n"
+        outputstr += "-"*(len(outputstr)-1) + "\n"
+        outputstr += f"Offset X [arcsec]: {self.offset_to_sci[0]:+0.4f}\nOffset Y [arcsec]: {self.offset_to_sci[1]:+0.4f}"
+        return outputstr
+    def _format_idl_before_slew(self):
+        outputstr = f"IDL positions of stars after TA:\n"
+        outputstr += "-"*(len(outputstr)-1) + "\n"
+        outputstr += "\n".join(f"{k}\t{v[0]:>+10.4f}\t{v[1]:>+10.4f}" for k, v in self.idl_coords_after_ta.items())
+        return outputstr
+    def _format_idl_after_slew(self):
+        outputstr = f"IDL positions of stars after slew:\n"
+        outputstr += "-"*(len(outputstr)-1) + "\n"
+        outputstr += "\n".join(f"{k}\t{v[0]:>+10.4f}\t{v[1]:>+10.4f}" for k, v in self.idl_coords_after_slew.items())
+        return outputstr
+
     def compute_positions(self, *args, update_params_from_widgets=True):
         # first, update either the values config dictionary or the widgets
         if update_params_from_widgets:
@@ -477,25 +512,17 @@ class ComputePositions():
         # set the aperture attitude matrix to the SCI position
         create_attmat(sci_pos['position'], self.aperture, v3pa, set_matrix=True)
         # if ACQ and SCI stars are the same, remove the SCI star
-        if self.SELF_TA == True:
+        if self._SELF_TA == True:
             self.idl_coords_after_ta.pop("ACQ")
             self.idl_coords_after_slew.pop("ACQ")
 
-        self._output_offset.clear_output()
-        self._output_before.clear_output()
-        self._output_after.clear_output()
-        outputstr = "Special Requirement -> Offset values\n"
-        outputstr += "-"*(len(outputstr)-1) + "\n"
-        outputstr += f"Offset X [arcsec]: {self.offset_to_sci[0]:+0.4f}\nOffset Y [arcsec]: {self.offset_to_sci[1]:+0.4f}"
-        self._output_offset.append_stdout(outputstr)
-        outputstr = f"IDL positions of stars after TA:\n"
-        outputstr += "-"*(len(outputstr)-1) + "\n"
-        outputstr += "\n".join(f"{k}\t{v[0]:>+10.4f}\t{v[1]:>+10.4f}" for k, v in self.idl_coords_after_ta.items())
-        self._output_before.append_stdout(outputstr)
-        outputstr = f"IDL positions of stars after slew:\n"
-        outputstr += "-"*(len(outputstr)-1) + "\n"
-        outputstr += "\n".join(f"{k}\t{v[0]:>+10.4f}\t{v[1]:>+10.4f}" for k, v in self.idl_coords_after_slew.items())
-        self._output_after.append_stdout(outputstr)
+        self.clear_output()
+        with self._output_offset:
+            print(self._format_offsets())
+        with self._output_before:
+            print(self._format_idl_before_slew())
+        with self._output_after:
+            print(self._format_idl_after_slew())
 
 
 #------------------------------------------------------#
@@ -738,4 +765,6 @@ def list_available_modes():
     cp = [mode_name].ComputePositions(parameter_dict)
     cp.plot_scene()
     """)
+    print("The user can always use the generic `whippot_tools.ComputePositions()` interface for modes without a custom class.")
+    
     return
