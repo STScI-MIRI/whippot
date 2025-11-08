@@ -85,13 +85,13 @@ pySIAF functions to determine where a particular RA and Dec coordinate would
 fall on a given aperture's field of view. `ComputePositions` is designed to be
 very generic, so it will work for any given aperture on the telescope but may
 not provide a great deal of useful information. WHIPPOT has been extended by
-creating a subclasses of `ComputePositions` (see the various files in the
-`modes` folder) that overlays mode-specific information on the plots generated
+creating subclasses of `ComputePositions` (see the various files in the
+`modes` folder) that overlay mode-specific information on the plots generated
 by the parent `ComputePositions` class.
 
 ## Usage
 
-### Generic observing modes
+### Generic interface
 
 A generic introduction to different ways of interacting with WHIPPOT is provided
 in [WHIPPOT_tutorial.ipynb](notebooks/WHIPPOT_tutorial.ipynb). It is designed to
