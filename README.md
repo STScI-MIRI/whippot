@@ -60,16 +60,18 @@ functionality.
 
 ## Design overview
 
-WHIPPOT is essentially a user-friendl[y/ier] interface to the immensely useful
-pySIAF[^4] package. pySIAF is a python library that interfaces with the Science
-Instrument Aperture File (SIAF), a document that contains the location of every
-"aperture" in the telescope. For the purposes of this README, the term
-"aperture" is used in the following non-standard sense defined in the SIAF
-definition document: > The SIAF captures certain basic geometric characteristics
-(in various frames) of the usable modes, subarrays, coronagraphs, physical
-apertures, etc., or stated generally, any unique targetable fiducial point and
-its associated region, used in support of JWST science operations. So in the
-context of the SIAF the term aperture is used in this broad sense.
+WHIPPOT represents an attempt to write a user-friendl[y/ier] interface to the
+immensely useful pySIAF[^4] package. pySIAF is a python library that interfaces
+with the Science Instrument Aperture File (SIAF), a document that contains the
+location of every "aperture" in the telescope. For the purposes of this README,
+the term "aperture" is used in the following non-standard sense defined in the
+SIAF definition document:
+
+> The SIAF captures certain basic geometric characteristics (in various frames)
+> of the usable modes, subarrays, coronagraphs, physical apertures, etc., or
+> stated generally, any unique targetable fiducial point and its associated
+> region, used in support of JWST science operations. So in the context of the
+> SIAF the term aperture is used in this broad sense.
 
 pySIAF not only reads from the SIAF to retrieve the locations of every aperture,
 but also provides tools to transform between the different telescope coordinate
@@ -411,7 +413,7 @@ We get by with a little help from our friends.
   - Code for showing diffraction spikes
   - Inspiration for displaying IFU apertures
 
-[^1]: This logo was clearly made using an AI tool. If you get inspired do sketch
+[^1]: This logo was clearly made using an AI tool. If you get inspired to sketch
     a whippet wearing the JWST primary mirror like a post-surgical cone collar,
     I would love to use your drawing instead! I can even send you $20.
 
