@@ -19,7 +19,11 @@ class ComputePositions(whippot_tools.ComputePositions):
         Function that returns a filtered list of apertures that can be selected
         Written this way so that it can be overriden by subclasses
         """
-        # apernames = [i for i in  aperture_list if 'MASK' in i.upper()]
-        apernames = [i for i in aperture_list if (i.endswith('R') or i.endswith("WB"))]
+        # NRCA only 
+        apernames = list(filter(lambda i: i.startswith("NRCA"), aperture_list))
+        # just the simple apertures
+        apernames = list(filter(lambda i: i.count("_") == 2, aperture_list))
+        # Bar or Round masks
+        apernames = list(filter(lambda i: ( i.endswith('R') or i.endswith("WB") ), aperture_list))
         return list(apernames)
 
