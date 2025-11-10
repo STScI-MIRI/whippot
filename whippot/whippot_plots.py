@@ -90,7 +90,7 @@ def plot_aper_to_frame(
         ax.scatter(*acq_pos,
                    c='k',
                    label=f"ACQ",
-                   marker='x',
+                   marker='^',
                    s=100)
         if show_diffraction_spikes:
             draw_diffraction_spikes(

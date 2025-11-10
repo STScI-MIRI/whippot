@@ -111,13 +111,18 @@ do). You can then enter your observing parameters and press the `Compute
 Positions` button to get the IDL coordinates of the sources in your scene. If
 you have a TA target that is different from your final science target, WHIPPOT
 will also give you the coordinates of the sources in the TA image (if there are
-2 TA images, then only the final one). Plot the scenes with `Plot scenes`. Note
+2 TA images, then only the final one). Plot the scenes with `Plot scene`. Note
 that if you change any parameters, you must re-run `Compute Positions` before
 the plots will update.
 
-The following image shows the GUI interface and corresponding output:
+The following image shows the GUI interface and corresponding text output:
 
 <img src="whippot_output.png" width="800">
+
+These are the corresponding plots:
+
+<img src="whippot_plots.png" width="600">
+
 
 A note on multiple calculations: Once you create a `ComputePositions` instance,
 all references to it in the code will refer to the same instance. Jupyter

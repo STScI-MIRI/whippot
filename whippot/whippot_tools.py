@@ -294,7 +294,7 @@ class ComputePositions():
         )
         self._compute_positions_button.on_click(self.compute_positions)
         self._plot_scene_button = widgets.Button(
-            description = 'Plot scenes',
+            description = 'Plot scene',
             disabled=False,
             button_style = 'info'
         )
