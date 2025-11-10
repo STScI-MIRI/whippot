@@ -64,8 +64,7 @@ WHIPPOT represents an attempt to write a user-friendl[y/ier] interface to the
 immensely useful pySIAF[^4] package. pySIAF is a python library that interfaces
 with the Science Instrument Aperture File (SIAF), a document that contains the
 location of every "aperture" in the telescope. For the purposes of this README,
-the term "aperture" is used in the following non-standard sense defined in the
-SIAF definition document:
+the term "aperture" is used in the technical sense defined in the SIAF definition document:
 
 > The SIAF captures certain basic geometric characteristics (in various frames)
 > of the usable modes, subarrays, coronagraphs, physical apertures, etc., or
