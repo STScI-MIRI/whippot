@@ -105,8 +105,8 @@ cp.ui
 ```
 
 The last line, `cp.ui`, returns the ipywidgets GUI to the notebook cell output,
-where it is then displayed (this is what the ipywidgets library is designed to
-do). You can then enter your observing parameters and press the `Compute
+where it is then displayed (this is how the ipywidgets library is designed to
+work). You can then enter your observing parameters and press the `Compute
 Positions` button to get the IDL coordinates of the sources in your scene. If
 you have a TA target that is different from your final science target, WHIPPOT
 will also give you the coordinates of the sources in the TA image (if there are
@@ -134,30 +134,30 @@ sources in a subsequent observations.
 
 #### Explanation of fields
 
-- Instrument : one of the JWST instruments ('NIRCAM', 'NIRSPEC', 'NIRISS',
+- `Instrument` : one of the JWST instruments ('NIRCAM', 'NIRSPEC', 'NIRISS',
   'MIRI', or 'FGS')
-- Aperture : the SIAF-defined name of the part of the telescope whose reference
+- 0`Aperture` : the SIAF-defined name of the part of the telescope whose reference
   position will be pointed at the SCI target. Choose from the drop-down menu.
   - This might be large. Check the "Exclude ROI" box to reduce the number of
     entries.
   - You might need help figuring out what they mean. Try looking for the
     APERTURE header keyword of previous data, or asking an experienced user.
-- PA (deg) : the PA angle of the V3 axis of the telescope *at the location of
+- `PA (deg)` : the PA angle of the V3 axis of the telescope *at the location of
   the aperture*. This corresponds to the `ROLL_REF` keyword, not the `P3_VA`
   (see below).
-- ACQ target position RA/Dec : the RA and Dec positions of the target used for
+- `ACQ target position RA/Dec` : the RA and Dec positions of the target used for
   Target Acquisition, in decimal degrees
-- SCI target position RA/Dec : the RA and Dec positions of the final science
+- `SCI target position RA/Dec` : the RA and Dec positions of the final science
   target, in decimal degrees
-- Other stars : a mutliline string containing a label and decimal-degree
+- `Other stars` : a mutliline string containing a label and decimal-degree
   coordinates for any other targets whose positions you wish to know. The format
   is: "label: (ra, dec)".
-- Final IDL X/Y: After TA, this is where you want your SCI target to end up (in
+- `Final IDL X/`Y: After TA, this is where you want your SCI target to end up (in
   IDL X/Y arcsec, corresponding to APT's "Special Requirements -> Offsets"
   option).
 - Additionally, there are plotting options:
-  - Show diffraction spikes: toggle to plot the orientations of the diffraction
-    spikes. The field "Spike length" sets their length, in arcsec.
+  - `Show diffraction spikes` : toggle to plot the orientations of the diffraction
+    spikes. The field `Spike length` sets their length, in arcsec.
 
 
 #### Initialization dictionary keywords
@@ -243,7 +243,7 @@ generating function for an aperture.
 
 ## Notes, Tips and Tricks ##
 
-- Offset TA: If, for some reason, you cannot use the built-in APT template for
+- Manual offset TA: If, for some reason, you cannot use the built-in APT template for
   target acquisition on something other than your science target, place the RA
   and Dec of the ACQ and SCI stars into the corresponding fields and press
   "Compute Positions". In APT, navigate to the "Special Requirements -> Offset
@@ -261,21 +261,20 @@ For targets with high proper motion, the user will have to propagate it
   themselves to the observing epoch. This can be done with astropy's SkyCoord
   tools ([SkyCoord
   documentation](https://docs.astropy.org/en/stable/api/astropy.coordinates.SkyCoord.html)).
-  This gives considerable flexibility in specifying the coordinates; for
-  example, by providing a distance and proper motions, the user can propagate
-  the positions using `SkyCoord.apply_space_motion()` to compute offsets for
-  multiple epochs. Each offset value is pinned to a particular observing epoch.
-  The user will have to carefully assess their error budget corresponding to how
-  much sources might move, and how much positional error their observing mode
-  can tolerate.
+  After providing proper motion values, you can propagate the positions using
+  `SkyCoord.apply_space_motion()` to compute offsets for multiple epochs. Each
+  offset value is pinned to a particular observing epoch. You will have to
+  carefully assess the error budget corresponding to how much sources might move
+  within a given window, and how much positional error their observing mode can
+  tolerate.
   
 #### Getting RA and Dec for exoplanets given a relative position
 
-Another use for SkyCoord functionality is for exoplanet systems where the
-position is defined relative to the primary. After creating a SkyCoord object
-for the primary, the RA and Dec of the planet(s) can be derived using
-`SkyCoord.spherical_offset_by(delta_ra, delta_dec)` or
-`SkyCoord.primary.directional_offset_by(sep, pa)`.
+Another use case for SkyCoord is exoplanet systems (or other systems where the
+mass ratio is << 1), where the position of the companion is defined relative to
+the primary. After creating a SkyCoord object for the primary, the RA and Dec of
+the planet(s) can be derived using `SkyCoord.spherical_offset_by(delta_ra, delta_dec)`
+or `SkyCoord.directional_offset_by(sep, pa)`.
 
 
 ### Position angles
@@ -337,8 +336,8 @@ angles against dates, as well as a table that can be read into a script.
 
 ### Do I need to calculate a separate offset for each roll? ###
 
-Yes, unless your roll angle is very small or your acquisition target is very
-close.
+Yes, unless your roll angle is very (very) small or your acquisition target is
+very (very) close.
 
 ### How to I place my SCI target at the position of one of the field targets in a separate observation?
 
