@@ -254,6 +254,11 @@ generating function for an aperture.
   angle, and then provide those coordinates to STPSF to simulate the point
   sources.
 
+### A guide to SIAF apertures
+
+This section will be fleshed out more in the future. For now, it is generally recommended to avoid apertures that end in "_OSS". These are used for commanding observations and usually have at least one axis that is flipped relative to the way the detector is read out.
+
+
 ### Positions ###
 
 #### Propagating positions to multiple epochs
