@@ -67,13 +67,15 @@ def plot_on_data(
         hdr : dict | None = None,
 ) -> mpl.figure.Figure:
     """
-    Overlay the scene on provided data. You have to be careful here about handling the aperutre name
+    Overlay the scene on provided data. You have to be careful here about handling the aperture name
 
     Parameters
     ----------
     cp : ComputePositions
     img : np.ndarray
-    hdr : dict : None
+      A 2-D exposure that corresponds to the SUBARRAY keyword from the data header
+    hdr : dict = None
+      the PRI header corresponding to the data. Can be NONE if the APERNAME keyword corresponds to a subarray
 
     Output
     ------
@@ -116,10 +118,6 @@ def plot_on_data(
         ll = (coord[0]-width/2, coord[1]-TRACE_DOWN/subarray_aper.YSciScale)
         idl_trace = mpl.patches.Rectangle(ll, width, height, **properties)
         traces.append(idl_trace)
-        # transform the trace idl vertices to sky coordinates
-        # traces.append(whippot_plots.transform_patch_footprint(
-        #     idl_trace, subarray_aper, 'sci', 'sci', **trace_properties
-        # ))
     # for some reason you have to find the axis limits *before* you add the patches to the plot,
     # perhaps because the act of adding them changes their vertices
     whippot_plots.include_patches_in_axes(ax, traces, invert_ra_axis=False)
