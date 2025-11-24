@@ -95,11 +95,10 @@ def plot_on_data(
     # if not, go through tel
     aper_prefix = cp.aperture.AperName.split("_")[0]
     subarray_aper = whippot_tools.Siaf(prihdr['INSTRUME'])[aper_prefix + "_" + prihdr['SUBARRAY']]
-    try:
-        det_pos = {k: cp.aperture.idl_to_sci(*v) for k, v in idl_pos.items()}
-    except TypeError:
-        tel_pos = {k: cp.aperture.idl_to_tel(*v) for k, v in idl_pos.items()}
-        det_pos = {k: subarray_aper.tel_to_sci(*v) for k, v in tel_pos.items()}
+    det_pos = {k: cp.aperture.idl_to_sci(*v) for k, v in idl_pos.items()}
+    # except TypeError:
+    #     tel_pos = {k: cp.aperture.idl_to_tel(*v) for k, v in idl_pos.items()}
+    #     det_pos = {k: subarray_aper.tel_to_sci(*v) for k, v in tel_pos.items()}
     dims = img.shape
     xcoords = np.arange(dims[1]+1) + 0.5
     ycoords = np.arange(dims[0]+1) + 0.5
@@ -113,6 +112,13 @@ def plot_on_data(
     ax.set_aspect("equal")
     for label, pos in det_pos.items():
         ax.scatter(*pos, label=label, marker='x', s=100)
+
+    cp.aperture.plot(ax=ax, fill=False, c='gray', frame='sci')
+    # also show the SLITLESSUPPER and LOWER apertures
+    for apername in ['MIRIM_SLITLESSUPPER', 'MIRIM_SLITLESSLOWER']:
+        new_aper = cp.instr[apername]
+        footprint = whippot_plots.transform_aper_footprint(new_aper, cp.aperture, 'sci', label=apername)
+        ax.add_patch(footprint)
     ax.legend(loc=(1.1, 0.5))
 
     traces = []
