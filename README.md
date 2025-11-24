@@ -36,10 +36,10 @@ The WHIPPOT uses ipywidgets to display the GUI, and therefore must be run in a
 Jupyter notebook if the GUI is desired. Setup for Jupyter can be found
 [here](https://jupyter.org/).
 
-### Without installation
+### Without installation (deprecated)
 
 WHIPPOT can be run from a python file in a local directory, if installing
-WHIPPOT is not desired. This mode is no longer developed, but provides basic
+WHIPPOT is not desired. This mode is no longer maintained, but provides basic
 functionality.
 - From the [github](https://github.com/STScI-MIRI/whippot) page, locate the
   branch selection drop-down menu at the top right and select `run_from_file`.
