@@ -456,12 +456,12 @@ class ComputePositions():
         outputstr += f"Offset X [arcsec]: {self.offset_to_sci[0]:+0.4f}\nOffset Y [arcsec]: {self.offset_to_sci[1]:+0.4f}"
         return outputstr
     def _format_idl_before_slew(self):
-        outputstr = f"IDL positions of stars after TA:\n"
+        outputstr = f"IDL positions of stars in TA exposure:\n"
         outputstr += "-"*(len(outputstr)-1) + "\n"
         outputstr += "\n".join(f"{k}\t{v[0]:>+10.4f}\t{v[1]:>+10.4f}" for k, v in self.idl_coords_after_ta.items())
         return outputstr
     def _format_idl_after_slew(self):
-        outputstr = f"IDL positions of stars after slew:\n"
+        outputstr = f"IDL positions of stars in science exposure:\n"
         outputstr += "-"*(len(outputstr)-1) + "\n"
         outputstr += "\n".join(f"{k}\t{v[0]:>+10.4f}\t{v[1]:>+10.4f}" for k, v in self.idl_coords_after_slew.items())
         return outputstr
