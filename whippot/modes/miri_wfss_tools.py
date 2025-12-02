@@ -10,6 +10,7 @@ from whippot import whippot_tools, whippot_plots
 aper = whippot_tools.Siaf("MIRI")['MIRIM_ILLUM']
 TRACE_UP = 100 * aper.YSciScale
 TRACE_DOWN = 300 * aper.YSciScale
+
 # shared plotting properties for traces
 trace_properties = dict(
     facecolor='C0', alpha=0.5, zorder=-1, linestyle='none'
@@ -18,6 +19,31 @@ trace_properties = dict(
 # Make a new class that overrides whippot_tools.ComputePositions.plot_scene()
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
+
+    def make_trace_patch(
+        self, idl_coord, frame='idl', **trace_properties
+    ) -> mpl.patches.PathPatch:
+        """
+        Parametrize the trace in the IDL coordinate frame to compute where it
+        falls on the detector. Then, use the points to make a matplotlib
+        PathPatch that can be transformed to the coordinate system specified by
+        `frame`. Return the transformed patch.
+        """
+        height, width = (TRACE_UP + TRACE_DOWN), 1
+        # ll -> lower left corner
+        ll = (idl_coord[0]-width/2, idl_coord[1]-TRACE_DOWN)
+        patch = mpl.patches.Rectangle(ll, width, height)
+
+        # convert this to a pathpatch
+        xverts, yverts = patch.get_verts().T
+        codes = patch.get_path().codes
+        transf_verts = np.array(self.aperture.convert(xverts, yverts, 'idl', frame)).T
+        trace = mpl.patches.PathPatch(
+            mpl.path.Path(list(transf_verts), codes=codes),
+            **trace_properties,
+        )
+        return trace
+
     def plot_scene(self, *args) -> mpl.figure.Figure:
         # copy the docstring
         super().plot_scene.__doc__
@@ -39,16 +65,9 @@ class ComputePositions(whippot_tools.ComputePositions):
         # for each source, add its trace to the detector and sky axes
         idl_traces, sky_traces = [], []
         for i, (k, coord) in enumerate(self.idl_coords_after_slew.items()):
-            # plot each trace as a Rectangle, defining the height, width, and bottom corner
-            height, width = (TRACE_UP + TRACE_DOWN), 1
-            # ll -> lower left corner
-            ll = (coord[0]-width/2, coord[1]-TRACE_DOWN)
-            idl_traces.append(mpl.patches.Rectangle(ll, width, height, **trace_properties))
+            idl_traces.append(self.make_trace_patch(coord, 'idl', **trace_properties))
+            sky_traces.append(self.make_trace_patch(coord, 'sky', **trace_properties))
 
-            # transform the trace idl vertices to sky coordinates
-            sky_traces.append(whippot_plots.transform_patch_footprint(
-                idl_traces[-1], self.aperture, 'idl', 'sky', **trace_properties
-            ))
         # for some reason you have to find the axis limits *before* you add the patches to the plot,
         # perhaps because the act of adding them changes their vertices
         whippot_plots.include_patches_in_axes(idl_ax, idl_traces, invert_ra_axis=False)
