@@ -7,13 +7,14 @@ import numpy as np
 
 from whippot import whippot_tools, whippot_plots
 
+# trace size reference: Andreea Petric, personal communication
 aper = whippot_tools.Siaf("MIRI")['MIRIM_ILLUM']
 TRACE_UP = 100 * aper.YSciScale
 TRACE_DOWN = 300 * aper.YSciScale
 
 # shared plotting properties for traces
 trace_properties = dict(
-    facecolor='C0', alpha=0.5, zorder=-1, linestyle='none'
+    alpha=0.5, zorder=-1,
 )
 
 # Make a new class that overrides whippot_tools.ComputePositions.plot_scene()
@@ -31,15 +32,33 @@ class ComputePositions(whippot_tools.ComputePositions):
         """
         ysteps = np.linspace(-TRACE_DOWN, TRACE_UP, 256) + idl_coord[1]
         xsteps = np.zeros_like(ysteps) + idl_coord[0]
-        # height, width = (TRACE_UP + TRACE_DOWN), 1
-        x, y = np.array(self.aperture.convert(xsteps, ysteps, 'idl', frame))
-        # Use  a LineCollection to make a rainbow of traces
-        # convert the points into a set of segments
-        points = np.array([x, y]).T.reshape(-1, 1, 2)
+        width = 1 # arcsec
+        points = np.array([xsteps, ysteps]).T.reshape(-1, 1, 2)
         segments = np.concatenate([points[:-1], points[1:]], axis=1)
-        lc = mpl.collections.LineCollection(segments, array=np.linspace(0, 1, len(segments)), cmap=mpl.cm.rainbow_r, zorder=-1, lw=2)
-        axis.add_collection(lc)
-        return None
+        patches = []
+        colors = mpl.cm.rainbow_r(np.linspace(0, 1, len(segments)))
+        for i in range(len(segments)):
+            seg = segments[i]
+            # seg_1 = segments[i+1]
+            ll = seg[0] - np.array([width/2, 0])
+            height = seg[1, 1] - seg[0, 1]
+            patch = mpl.patches.Rectangle(ll, width, height)
+            # convert this to a pathpatch
+            xverts, yverts = patch.get_verts().T
+            codes = patch.get_path().codes
+            transf_verts = np.array(self.aperture.convert(xverts, yverts, 'idl', frame)).T
+            trace = mpl.patches.PathPatch(
+                mpl.path.Path(list(transf_verts), codes=codes),
+                facecolor='k',#colors[i],
+                **trace_properties,
+            )
+            patches.append(trace)
+
+        patchcol = mpl.collections.PatchCollection(patches, facecolors=colors, **trace_properties)
+        axis.add_collection(patchcol)
+        # make sure the patches fit in the axis
+        axis.autoscale_view()
+        return
 
     def plot_scene(self, *args) -> mpl.figure.Figure:
         # copy the docstring
@@ -61,9 +80,8 @@ class ComputePositions(whippot_tools.ComputePositions):
 
         # for each source, add its trace to the detector and sky axes
         for i, (k, coord) in enumerate(self.idl_coords_after_slew.items()):
-            self.plot_trace(coord, idl_ax, 'idl')
-            self.plot_trace(coord, sky_ax, 'sky')
-
+            self.plot_trace(coord, idl_ax, 'idl', **trace_properties)
+            self.plot_trace(coord, sky_ax, 'sky', **trace_properties)
 
         return fig
 
