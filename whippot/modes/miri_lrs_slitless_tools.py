@@ -58,8 +58,6 @@ class ComputePositions(whippot_tools.ComputePositions):
 
         patchcol = mpl.collections.PatchCollection(patches, facecolors=colors, **trace_properties)
         axis.add_collection(patchcol)
-        # make sure the patches fit in the axis
-        axis.autoscale_view()
         return
 
 
@@ -82,6 +80,9 @@ class ComputePositions(whippot_tools.ComputePositions):
         for i, (k, coord) in enumerate(self.idl_coords_after_slew.items()):
             self.plot_trace(coord, idl_ax, 'idl', **trace_properties)
             self.plot_trace(coord, sky_ax, 'sky', **trace_properties)
+        # make sure the patches fit in the axis
+        for ax in [idl_ax, sky_ax]:
+            ax.autoscale_view()
 
         return fig
 
