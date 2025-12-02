@@ -1,5 +1,7 @@
 import pytest
 
+from astropy import units
+
 from whippot import whippot_tools
 from whippot import list_of_masks as lom
 from whippot.modes import (
@@ -30,8 +32,11 @@ default_init = {
     'sci_aper': 'mirim_full', 
     'pa': 290.,
     'sci_ra': sources['SCI'].ra.deg, 'sci_dec': sources['SCI'].dec.deg,
-    'other_stars': '',
+    'other_stars': '\n'.join(
+        f"{k}: ({v.ra.deg}, {v.dec.deg})" for k, v in sources.items() if k != 'SCI'
+    ),
     'exclude_roi': False,
+    'show_diffraction_spikes': False,
 }
 # add a multi-line string of the other stars, copied from the cell above
 default_init['other_stars'] = "\n".join(f"{k}: ({v.ra.deg}, {v.dec.deg})" for k, v in sources.items())
@@ -63,7 +68,10 @@ def test_MiriWFSS_ComputePositions():
 
 def test_MiriMRS_ComputePositions():
     config = default_init.copy()
-    config.update({'sci_aper': 'MIRIFU_CHANNEL2C'})
+    config.update({
+        'sci_aper': 'MIRIFU_CHANNEL2C',
+        'show_diffraction_spikes': True,
+    })
     cp = miri_mrs_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
@@ -75,7 +83,15 @@ def test_MiriMRS_ComputePositions():
 )
 def test_MiriCoron_ComputePositions(sci_aper):
     config = default_init.copy()
-    config.update({'sci_aper': sci_aper})
+    config.update({
+        # update the aperture
+        'sci_aper': sci_aper,
+        # add a TA star
+        'acq_ra': config['sci_ra'] + 60*units.arcsec.to(units.deg),
+        'acq_dec': config['sci_dec'] - 30*units.arcsec.to(units.deg),
+        # show diffraction spikes
+        'show_diffraction_spikes': True,
+    })
     cp = miri_coron_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)
@@ -84,7 +100,11 @@ def test_MiriCoron_ComputePositions(sci_aper):
 
 def test_NirspecIFU_ComputePositions():
     config = default_init.copy()
-    config.update({'instr': 'nirspec', 'sci_aper': 'nrs_full_ifu'})
+    config.update({
+        'instr': 'nirspec',
+        'sci_aper': 'nrs_full_ifu',
+        'show_diffraction_spikes': True,
+    })
     cp = nirspec_ifu_tools.ComputePositions(initial_values=config)
     fig = cp.plot_scene()
     whippot_tools.plt.close(fig)

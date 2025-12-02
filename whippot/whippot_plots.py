@@ -90,7 +90,7 @@ def plot_aper_to_frame(
         ax.scatter(*acq_pos,
                    c='k',
                    label=f"ACQ",
-                   marker='x',
+                   marker='^',
                    s=100)
         if show_diffraction_spikes:
             draw_diffraction_spikes(
@@ -281,7 +281,7 @@ def transform_patch_footprint(
     """
     p = patch.get_path()
     codes = p.codes
-    x, y = p.vertices.T
+    x, y = patch.get_verts().T
     transf_verts = np.array(aper.convert(x, y, frame_from, frame_to)).T
     transf_patch = patches.PathPatch(
         path.Path(list(transf_verts), codes=codes),
