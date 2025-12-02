@@ -13,38 +13,52 @@ from whippot import whippot_plots
 aper = whippot_tools.Siaf("MIRI")['MIRIM_FULL']
 TRACE_UP = 100 * aper.YSciScale
 TRACE_DOWN = 300 * aper.YSciScale
+
 # shared plotting properties for traces
 trace_properties = dict(
-    facecolor='C0', alpha=0.5, zorder=-1, linestyle='none'
+    alpha=0.5, zorder=-1,
 )
 
 # Make a new class that overrides whippot_tools.ComputePositions.plot_scene()
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
 
-    def make_trace_patch(
-        self, idl_coord, frame='idl', **trace_properties
-    ) -> mpl.patches.PathPatch:
+    def plot_trace(
+        self, idl_coord, axis, frame='idl', **trace_properties
+    ) -> None:
         """
         Parametrize the trace in the IDL coordinate frame to compute where it
         falls on the detector. Then, use the points to make a matplotlib
         PathPatch that can be transformed to the coordinate system specified by
         `frame`. Return the transformed patch.
         """
-        height, width = (TRACE_UP + TRACE_DOWN), 1
-        # ll -> lower left corner
-        ll = (idl_coord[0]-width/2, idl_coord[1]-TRACE_DOWN)
-        patch = mpl.patches.Rectangle(ll, width, height)
+        ysteps = np.linspace(-TRACE_DOWN, TRACE_UP, 256) + idl_coord[1]
+        xsteps = np.zeros_like(ysteps) + idl_coord[0]
+        width = 1 # arcsec
+        points = np.array([xsteps, ysteps]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        patches = []
+        colors = mpl.cm.rainbow_r(np.linspace(0, 1, len(segments)))
+        for i in range(len(segments)):
+            seg = segments[i]
+            # seg_1 = segments[i+1]
+            ll = seg[0] - np.array([width/2, 0])
+            height = seg[1, 1] - seg[0, 1]
+            patch = mpl.patches.Rectangle(ll, width, height)
+            # convert this to a pathpatch
+            xverts, yverts = patch.get_verts().T
+            codes = patch.get_path().codes
+            transf_verts = np.array(self.aperture.convert(xverts, yverts, 'idl', frame)).T
+            trace = mpl.patches.PathPatch(
+                mpl.path.Path(list(transf_verts), codes=codes),
+                facecolor='k',#colors[i],
+                **trace_properties,
+            )
+            patches.append(trace)
 
-        # convert this to a pathpatch
-        xverts, yverts = patch.get_verts().T
-        codes = patch.get_path().codes
-        transf_verts = np.array(self.aperture.convert(xverts, yverts, 'idl', frame)).T
-        trace = mpl.patches.PathPatch(
-            mpl.path.Path(list(transf_verts), codes=codes),
-            **trace_properties,
-        )
-        return trace
+        patchcol = mpl.collections.PatchCollection(patches, facecolors=colors, **trace_properties)
+        axis.add_collection(patchcol)
+        return
 
 
     def plot_scene(self, *args) -> mpl.figure.Figure:
@@ -63,20 +77,13 @@ class ComputePositions(whippot_tools.ComputePositions):
             sky_ax.add_patch(footprint)
 
         # for each source, add its trace to the detector and sky axes
-        idl_traces, sky_traces = [], []
         for i, (k, coord) in enumerate(self.idl_coords_after_slew.items()):
-            idl_traces.append(self.make_trace_patch(coord, 'idl', **trace_properties))
-            sky_traces.append(self.make_trace_patch(coord, 'sky', **trace_properties))
+            self.plot_trace(coord, idl_ax, 'idl', **trace_properties)
+            self.plot_trace(coord, sky_ax, 'sky', **trace_properties)
+        # make sure the patches fit in the axis
+        for ax in [idl_ax, sky_ax]:
+            ax.autoscale_view()
 
-        # for some reason you have to find the axis limits *before* you add the patches to the plot,
-        # perhaps because the act of adding them changes their vertices
-        whippot_plots.include_patches_in_axes(idl_ax, idl_traces, invert_ra_axis=False)
-        whippot_plots.include_patches_in_axes(sky_ax, sky_traces, invert_ra_axis=True)
-        # add the sky trace to the sky axes
-        # add the idl trace to the idl axis
-        for it, st in zip(idl_traces, sky_traces):
-            idl_ax.add_patch(it)
-            sky_ax.add_patch(st)
         return fig
 
 def plot_on_data(
