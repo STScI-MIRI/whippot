@@ -20,29 +20,26 @@ trace_properties = dict(
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
 
-    def make_trace_patch(
-        self, idl_coord, frame='idl', **trace_properties
-    ) -> mpl.patches.PathPatch:
+    def plot_trace(
+        self, idl_coord, axis, frame='idl', **trace_properties
+    ) -> None:
         """
         Parametrize the trace in the IDL coordinate frame to compute where it
         falls on the detector. Then, use the points to make a matplotlib
         PathPatch that can be transformed to the coordinate system specified by
         `frame`. Return the transformed patch.
         """
-        height, width = (TRACE_UP + TRACE_DOWN), 1
-        # ll -> lower left corner
-        ll = (idl_coord[0]-width/2, idl_coord[1]-TRACE_DOWN)
-        patch = mpl.patches.Rectangle(ll, width, height)
-
-        # convert this to a pathpatch
-        xverts, yverts = patch.get_verts().T
-        codes = patch.get_path().codes
-        transf_verts = np.array(self.aperture.convert(xverts, yverts, 'idl', frame)).T
-        trace = mpl.patches.PathPatch(
-            mpl.path.Path(list(transf_verts), codes=codes),
-            **trace_properties,
-        )
-        return trace
+        ysteps = np.linspace(-TRACE_DOWN, TRACE_UP, 256) + idl_coord[1]
+        xsteps = np.zeros_like(ysteps) + idl_coord[0]
+        # height, width = (TRACE_UP + TRACE_DOWN), 1
+        x, y = np.array(self.aperture.convert(xsteps, ysteps, 'idl', frame))
+        # Use  a LineCollection to make a rainbow of traces
+        # convert the points into a set of segments
+        points = np.array([x, y]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        lc = mpl.collections.LineCollection(segments, array=np.linspace(0, 1, len(segments)), cmap=mpl.cm.rainbow_r, zorder=-1, lw=2)
+        axis.add_collection(lc)
+        return None
 
     def plot_scene(self, *args) -> mpl.figure.Figure:
         # copy the docstring
@@ -63,20 +60,10 @@ class ComputePositions(whippot_tools.ComputePositions):
             sky_ax.add_patch(footprint)
 
         # for each source, add its trace to the detector and sky axes
-        idl_traces, sky_traces = [], []
         for i, (k, coord) in enumerate(self.idl_coords_after_slew.items()):
-            idl_traces.append(self.make_trace_patch(coord, 'idl', **trace_properties))
-            sky_traces.append(self.make_trace_patch(coord, 'sky', **trace_properties))
+            self.plot_trace(coord, idl_ax, 'idl')
+            self.plot_trace(coord, sky_ax, 'sky')
 
-        # for some reason you have to find the axis limits *before* you add the patches to the plot,
-        # perhaps because the act of adding them changes their vertices
-        whippot_plots.include_patches_in_axes(idl_ax, idl_traces, invert_ra_axis=False)
-        whippot_plots.include_patches_in_axes(sky_ax, sky_traces, invert_ra_axis=True)
-        # add the sky trace to the sky axes
-        # add the idl trace to the idl axis
-        for it, st in zip(idl_traces, sky_traces):
-            idl_ax.add_patch(it)
-            sky_ax.add_patch(st)
 
         return fig
 
