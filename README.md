@@ -226,6 +226,10 @@ listed with the command `whippot_tools.list_available_modes()`.
     - `whippot/modes/nirspec_ifu_tools.py`
     - Shows overall IFU footprint as well as individual slices.
 
+Here is an example output plot for MIRI WFSS mode, showing spectral traces, the full detector footprint, and the illuminated detector region footprint:
+
+<img src="miri_wfss_example.png" width="800">
+
 ### A note on FOV masks
 
 You may notice that the plots for a few modes indicate particular regions of the
