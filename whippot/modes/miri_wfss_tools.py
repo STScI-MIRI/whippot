@@ -69,10 +69,10 @@ class ComputePositions(whippot_tools.ComputePositions):
         # also show the SLITLESSUPPER and LOWER apertures
         for apername in ['MIRIM_FULL', 'MIRIM_ILLUM']:
             new_aper = self.instr[apername]
-            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, 'idl', label=apername)
+            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, to_frame=frame, label=apername)
             whippot_plots.include_patches_in_axes(idl_ax, [footprint], invert_ra_axis=False)
             idl_ax.add_patch(footprint)
-            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, 'sky', label=apername)
+            footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, to_frame='sky', label=apername)
             whippot_plots.include_patches_in_axes(sky_ax, [footprint], invert_ra_axis=True)
             sky_ax.add_patch(footprint)
 
