@@ -25,6 +25,8 @@ trace_properties = dict(
 # Define the LRS Base class
 class MiriLRS(whippot_tools.ComputePositions):
 
+    def _prefilter_apertures(self, aperture_list: list) -> list:
+        return ['MIRIM_SLIT','MIRIM_SLITLESSPRISM','MIRIM_FULL']
 
     def get_apers_to_plot(self):
         apers_to_plot = []
