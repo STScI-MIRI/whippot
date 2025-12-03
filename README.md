@@ -207,13 +207,13 @@ listed with the command `whippot_tools.list_available_modes()`.
   * MIRI Coronagraphy
     - `whippot/modes/miri_coron_tools.py`
     - Shows both the illuminated aperture and the full readout aperture.
-  * MIRI LRS Slitless Spectroscopy
-    - `whippot/modes/miri_lrs_slitless_tools.py`
+  * MIRI LRS Slit, Slitless, and Wide-Field Slitless Spectroscopy
+    - `whippot/modes/miri_lrs_tools.py`
+    - Contains classes for the three LRS modes:
+      - `MiriLRSSlit`
+      - `MiriLRSSlitless`
+      - `MiriWFSS`
     - Shows approximate positions spectral traces.
-    - Overlays the SLITLESS_UPPER and SLITLESS_LOWER apertures.
-  * MIRI Wide-field Slitless Spectroscopy
-    - `whippot/modes/miri_wfss_tools.py`
-    - Shows approximate positions spectral traces
   * MIRI MRS
     - `whippot/modes/miri_mrs_tools.py`
     - Shows footprint of all 4 MRS channels.

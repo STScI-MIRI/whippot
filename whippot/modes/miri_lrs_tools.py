@@ -25,24 +25,15 @@ trace_properties = dict(
 # Define the LRS Base class
 class MiriLRS(whippot_tools.ComputePositions):
 
-    def _apply_aperture_filter(self, aperture_list: list) -> list:
-        return ['MIRIM_SLIT','MIRIM_SLITLESSPRISM','MIRIM_FULL']
 
-    def get_apers_to_plot(self):
-        apers_to_plot = []
-        match self.aperture.AperName:
-            # LRS Slitless
-            case 'MIRIM_SLITLESSPRISM':
-                apers_to_plot = ['MIRIM_SLITLESSPRISM', 'MIRIM_SLITLESSUPPER', 'MIRIM_SLITLESSLOWER']
-            # LRS Slit
-            case 'MIRIM_SLIT':
-                apers_to_plot = ['MIRIM_SLIT', 'MIRIM_FULL', 'MIRIM_ILLUM']
-            # WFSS
-            case 'MIRIM_ILLUM':
-                apers_to_plot = ['MIRIM_FULL', 'MIRIM_ILLUM']
-            case 'MIRIM_FULL':
-                apers_to_plot = ['MIRIM_FULL', 'MIRIM_ILLUM']
-        return apers_to_plot
+    def _apply_aperture_filter(self, aperture_list: list) -> list:
+        return ['MIRIM_SLIT','MIRIM_SLITLESSPRISM','MIRIM_FULL', 'MIRIM_ILLUM']
+
+
+    # @property
+    @abc.abstractmethod
+    def _get_apers_to_plot(self) -> list[str]:
+        pass
 
     def plot_trace(
         self, idl_coord, axis, frame='idl', **trace_properties
@@ -82,7 +73,7 @@ class MiriLRS(whippot_tools.ComputePositions):
         axis.autoscale_view()
         return
 
-    def plot_scene(self, *args) -> mpl.figure.Figure:
+    def plot_scene(self, cls, *args) -> mpl.figure.Figure:
         # copy the docstring
         super().plot_scene.__doc__
 
@@ -91,9 +82,8 @@ class MiriLRS(whippot_tools.ComputePositions):
 
         # show the ILLUM and FULL apertures
         # also show the SLITLESSUPPER and LOWER apertures
-        apers_to_plot = self.get_apers_to_plot()
             
-        for apername in apers_to_plot:
+        for apername in self._get_apers_to_plot():
             new_aper = self.instr[apername]
             footprint = whippot_plots.transform_aper_footprint(new_aper, self.aperture, 'idl', label=apername)
             footprint.set(facecolor='gray', fill=True, alpha=0.2)
@@ -114,24 +104,25 @@ class MiriLRS(whippot_tools.ComputePositions):
 
         return fig
 
-# # Now define the LRS Subclasses
+# Now define the LRS Subclasses
 
-# class MiriWFSS(MiriLRS):
+class MiriLRSSlit(MiriLRS):
 
-#     def apers_to_plot(self):
-#         return ['MIRIM_FULL', 'MIRIM_ILLUM']
+    def _get_apers_to_plot(self):
+        return ['MIRIM_SLIT']
+
+class MiriLRSSlitless(MiriLRS):
+
+    def _get_apers_to_plot(self):
+        return ['MIRIM_SLITLESSUPPER', 'MIRIM_SLITLESSLOWER']
+
+class MiriWFSS(MiriLRS):
+
+    def _get_apers_to_plot(self):
+        return ['MIRIM_FULL', 'MIRIM_ILLUM']
 
 
-# class MiriLRSSLitless(MiriLRS):
 
-#     def apers_to_plot(self):
-#         return ['MIRIM_SLITLESSUPPER', 'MIRIM_SLITLESSLOWER']
-
-
-# class MiriLRSSlit(MiriLRS):
-
-#     def apers_to_plot(self):
-#         return ['MIRIM_SLIT', 'MIRIM_ILLUM']
 
 def plot_on_data(
         cp : MiriLRS,

@@ -88,10 +88,8 @@ class ComputePositions():
         apertures = Siaf(self._instr_picker.value).apertures
         apernames = [name.upper() for name, aper in apertures.items()]
         # filter the names
-        print("oops")
         if self._filter_apertures_chkbx.value:
             apernames = self._apply_aperture_filter(apernames)
-            print(apernames)
         return apernames
 
 
