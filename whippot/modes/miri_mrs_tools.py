@@ -14,7 +14,7 @@ from whippot import whippot_plots
 # with the one defined above
 class ComputePositions(whippot_tools.ComputePositions):
 
-    def _prefilter_apertures(self, aperture_list : list) -> list:
+    def _apply_aperture_filter(self, aperture_list : list) -> list:
         """
         Function that returns a filtered list of apertures that can be selected
         Written this way so that it can be overriden by subclasses

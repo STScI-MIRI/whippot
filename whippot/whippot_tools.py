@@ -80,24 +80,18 @@ class ComputePositions():
         return defaults
 
     # use these functions to filter the list of aperture options
-    def _prefilter_apertures(self, aperture_list : list) -> list:
+    def _apply_aperture_filter(self, aperture_list : list) -> list:
         """apply this filter before the ROI check"""
-        return aperture_list
-    def _postfilter_apertures(self, aperture_list : list) -> list:
-        """apply this filter after the ROI check"""
         return aperture_list
     def _filter_aperture_options(self) -> list[str]:
         # get all available apertures and names
         apertures = Siaf(self._instr_picker.value).apertures
         apernames = [name.upper() for name, aper in apertures.items()]
-
         # filter the names
-        apernames = self._prefilter_apertures(apernames)
+        print("oops")
         if self._filter_apertures_chkbx.value:
-            apernames = [
-                name.upper() for name in apernames if apertures[name].AperType != 'ROI'
-            ]
-        apernames = self._postfilter_apertures(apernames)
+            apernames = self._apply_aperture_filter(apernames)
+            print(apernames)
         return apernames
 
 
