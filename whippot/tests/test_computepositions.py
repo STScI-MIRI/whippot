@@ -35,7 +35,7 @@ default_init = {
     'other_stars': '\n'.join(
         f"{k}: ({v.ra.deg}, {v.dec.deg})" for k, v in sources.items() if k != 'SCI'
     ),
-    'exclude_roi': False,
+    'filter_apertures': False,
     'show_diffraction_spikes': False,
 }
 # add a multi-line string of the other stars, copied from the cell above

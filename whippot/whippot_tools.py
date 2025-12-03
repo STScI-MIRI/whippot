@@ -36,7 +36,7 @@ class ComputePositions():
           'acq_ra' : 90., 'acq_dec' : 90.,
           'sci_ra' : 91., 'sci_dec' : 89.,
           'other_stars' : '',
-          'exclude_roi' : True,
+          'filter_apertures' : True,
           'show_diffraction_spikes': False,
         }
         """
@@ -71,7 +71,7 @@ class ComputePositions():
           'acq_ra' : 0., 'acq_dec' : 0.,
           'sci_ra' : 0., 'sci_dec' : 0.,
           'other_stars' : '',
-          'exclude_roi' : True,
+          'filter_apertures' : True,
           'show_diffraction_spikes' : False,
           'diff_spike_len': 4., 
         }
@@ -85,14 +85,14 @@ class ComputePositions():
     def _postfilter_apertures(self, aperture_list : list) -> list:
         """apply this filter after the ROI check"""
         return aperture_list
-    def _filter_aperture_options(self):
+    def _filter_aperture_options(self) -> list[str]:
         # get all available apertures and names
         apertures = Siaf(self._instr_picker.value).apertures
         apernames = [name.upper() for name, aper in apertures.items()]
 
         # filter the names
         apernames = self._prefilter_apertures(apernames)
-        if self._exclude_roi_chkbx.value:
+        if self._filter_apertures_chkbx.value:
             apernames = [
                 name.upper() for name in apernames if apertures[name].AperType != 'ROI'
             ]
@@ -121,7 +121,7 @@ class ComputePositions():
         self.parameter_values['sci_ra'] = self._sci_pos_widget.children[1].children[0].value
         self.parameter_values['sci_dec'] = self._sci_pos_widget.children[1].children[1].value
         self.parameter_values['other_stars'] = self._other_stars_widget.value
-        self.parameter_values['exclude_roi'] = self._exclude_roi_chkbx.value
+        self.parameter_values['filter_apertures'] = self._filter_apertures_chkbx.value
         self.parameter_values['show_diffraction_spikes'] = self._show_spikes_chkbx.value
         self.parameter_values['diff_spike_len'] = self._diff_spike_len_setter.value
 
@@ -147,7 +147,7 @@ class ComputePositions():
         self._sci_pos_widget.children[1].children[0].value = self.parameter_values['sci_ra']
         self._sci_pos_widget.children[1].children[1].value = self.parameter_values['sci_dec']
         self._other_stars_widget.value = self.parameter_values['other_stars']
-        self._exclude_roi_chkbx.value = self.parameter_values['exclude_roi']
+        self._filter_apertures_chkbx.value = self.parameter_values['filter_apertures']
         self._show_spikes_chkbx.value = self.parameter_values['show_diffraction_spikes']
         self._diff_spike_len_setter.value = self.parameter_values['diff_spike_len']
 
@@ -220,13 +220,13 @@ class ComputePositions():
         self._instr_picker.observe(self._update_aperture_options, names=['value'])
         # set self.sci_apers
         self._sci_aper_picker = widgets.Dropdown(description='Aperture')
-        self._exclude_roi_chkbx = widgets.Checkbox(
-            value = widget_values.get('exclude_roi', True),
-            description='Exclude ROI apers',
+        self._filter_apertures_chkbx = widgets.Checkbox(
+            value = widget_values.get('filter_apertures', True),
+            description='Filter apertures',
             disabled=False,
             indent=False
         )
-        self._exclude_roi_chkbx.observe(self._update_aperture_options, names=['value'])
+        self._filter_apertures_chkbx.observe(self._update_aperture_options, names=['value'])
         # initialize the apers
         self._update_aperture_options()
         # to show or not to show the full aperture list
@@ -322,7 +322,7 @@ class ComputePositions():
             layout = Layout(display='flex', justify_content='center'),
         )
         # grid[1, 0] = self._instr_picker
-        grid[1, 0] = widgets.HBox([self._instr_picker, self._exclude_roi_chkbx])
+        grid[1, 0] = widgets.HBox([self._instr_picker, self._filter_apertures_chkbx])
         grid[2, 0] = self._sci_aper_picker
         grid[4, 0] = self._PA_setter
         grid[5, 0] = widgets.Label(value='Plot options', layout = Layout(display='flex', justify_content='center'),)

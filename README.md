@@ -177,7 +177,7 @@ field above to which they correspond:
 - `acq_ra` -> ACQ target position / RA [deg]
 - `acq_dec` -> ACQ target position / Dec [deg]
 - `other_stars` -> Other Stars
-- `exclude_roi` -> do not list apertures defined as "Regions of Interest", which
+- `filter_apertures` -> do not list apertures defined as "Regions of Interest", which
   do not correspond to detector regions that can be read out.
 - `show_diffraction_spikes` -> Plot diffraction spikes around each source
 - `diff_spike_len` -> length of the diffraction spikes in arcsec
