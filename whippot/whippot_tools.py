@@ -38,6 +38,7 @@ class ComputePositions():
           'other_stars' : '',
           'filter_apertures' : True,
           'show_diffraction_spikes': False,
+          'diff_spike_len': 4.,
         }
         """
         self._initial_values = initial_values.copy()

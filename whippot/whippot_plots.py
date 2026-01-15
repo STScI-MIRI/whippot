@@ -141,6 +141,8 @@ def plot_aper_to_frame(
     ax.grid(True, ls='--', c='grey', alpha=0.5)
     if frame_to == 'sky':
         ax.invert_xaxis()
+        ax.set_xlabel("RA (deg)")
+        ax.set_ylabel("Dec (deg)")
     return fig
 
 
