@@ -18,9 +18,10 @@ telescope on the sky. This is useful in a number of cases:
 - computing X/Y offset APT commands for manual target acquisition offsets,
 - checking the overlap of spectral traces,
 - avoiding diffraction spikes,
-- scene simulation with STPSF[^3],
+- simulating astrophysical scenes with STPSF[^3],
 - placing a target in one observation at the position of a target in another to
-create a PSF reference for subtraction, and probably more.
+create a PSF reference for subtraction,
+- and more!
 
 ## Setup
 
@@ -32,7 +33,7 @@ create a PSF reference for subtraction, and probably more.
 - astropy
 - pySIAF
 
-The WHIPPOT uses ipywidgets to display the GUI, and therefore must be run in a
+WHIPPOT uses ipywidgets to display the GUI, and therefore must be run in a
 Jupyter notebook if the GUI is desired. Setup for Jupyter can be found
 [here](https://jupyter.org/).
 
