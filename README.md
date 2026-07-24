@@ -137,7 +137,7 @@ sources in a subsequent observations.
 
 - `Instrument` : one of the JWST instruments ('NIRCAM', 'NIRSPEC', 'NIRISS',
   'MIRI', or 'FGS')
-- 0`Aperture` : the SIAF-defined name of the part of the telescope whose reference
+- `Aperture` : the SIAF-defined name of the part of the telescope whose reference
   position will be pointed at the SCI target. Choose from the drop-down menu.
   - This might be large. Check the "Exclude ROI" box to reduce the number of
     entries.
@@ -243,8 +243,8 @@ for the transformations of the masks between detector and sky coordinates to
 work. The file `list_of_masks` contains a dictionary where each key is the name
 of an aperture. The entry is a _function_ that generates an instance of that
 mask. (it is done this way because each time a mask is overlaid on a plot, a new
-instance of the mask is required). Follow the examples to add a new mask
-generating function for an aperture.
+instance of the mask is required). Follow the examples to add a new mask-generating
+function for an aperture.
 
 ## Notes, Tips and Tricks ##
 
