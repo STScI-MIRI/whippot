@@ -219,7 +219,7 @@ class ComputePositions():
         self._sci_aper_picker = widgets.Dropdown(description='Aperture')
         self._filter_apertures_chkbx = widgets.Checkbox(
             value = widget_values.get('filter_apertures', True),
-            description='Filter apertures',
+            description='Filter aperture list',
             disabled=False,
             indent=False
         )
