@@ -33,7 +33,9 @@ class ComputePositions():
           'instr': 'MIRI',
           'sci_aper': 'MIRIM_CORON1550',
           'pa': 180.,
+          'acq_label': 'ACQ',
           'acq_ra' : 90., 'acq_dec' : 90.,
+          'sci_label': 'SCI',
           'sci_ra' : 91., 'sci_dec' : 89.,
           'other_stars' : '',
           'filter_apertures' : True,
@@ -71,7 +73,9 @@ class ComputePositions():
           'instr': 'MIRI',
           'sci_aper': 'MIRIM_CORON1550',
           'pa': 0.,
+          'acq_label': 'ACQ',
           'acq_ra' : 0., 'acq_dec' : 0.,
+          'sci_label': 'SCI',
           'sci_ra' : 0., 'sci_dec' : 0.,
           'other_stars' : '',
           'filter_apertures' : True,
@@ -473,14 +477,14 @@ class ComputePositions():
         sci_dec = self.parameter_values['sci_dec']
 
         acq_pos = {
-            'label': 'ACQ',
+            'label': self.parameter_values['acq_label'],
             'position': SkyCoord(
                 acq_ra, acq_dec,
                 frame='icrs', unit='deg',
             ),
         }
         sci_pos = {
-            'label': 'SCI',
+            'label': self.parameter_values['sci_label'],
             'position': SkyCoord(
                 sci_ra, sci_dec,
                 frame='icrs', unit='deg',
@@ -501,7 +505,7 @@ class ComputePositions():
             other_stars = other_stars,
         )
         self.idl_coords_after_ta = {i['label']: i['position'] for i in idl_coords}
-        self.offset_to_sci = -self.idl_coords_after_ta['SCI'] + slew_to_idl
+        self.offset_to_sci = -self.idl_coords_after_ta[self.parameter_values['sci_label']] + slew_to_idl
         self.idl_coords_after_slew = {
             k: v + self.offset_to_sci
             for k, v in self.idl_coords_after_ta.items()
@@ -510,8 +514,8 @@ class ComputePositions():
         create_attmat(sci_pos['position'], self.aperture, v3pa, set_matrix=True)
         # if ACQ and SCI stars are the same, remove the SCI star
         if self._SELF_TA == True:
-            self.idl_coords_after_ta.pop("ACQ")
-            self.idl_coords_after_slew.pop("ACQ")
+            self.idl_coords_after_ta.pop(self.parameter_values['acq_label'])
+            self.idl_coords_after_slew.pop(self.parameter_values['acq_label'])
 
         self.clear_output()
         with self._output_offset:
