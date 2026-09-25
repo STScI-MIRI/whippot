@@ -10,6 +10,8 @@ from matplotlib import pyplot as plt
 
 from astropy.coordinates import SkyCoord
 from astropy import units
+from astropy.io import fits
+from astropy.time import Time
 
 import pysiaf
 from pysiaf import Siaf
@@ -769,3 +771,62 @@ def list_available_modes():
     print("The user can always use the generic `whippot_tools.ComputePositions()` interface for modes without a custom class.")
     
     return
+
+def initialize_from_file(
+        exposure_file : str | Path,
+        other_stars : dict[str | SkyCoord] = {},
+        **kwargs,
+) -> dict :
+    """
+    Populate an initialization dictionary from the fits file of an exposure.
+    This will set the orientation of the telescope and science target. If
+    other_stars is populated, it will propagate their positions to the
+    observing time (this can also be set separately or not at all). It will
+    also accept other ComputePositions arguments, though those can be set
+    separately as well.
+
+    Parameters
+    ----------
+    exposure_file : str | Path
+      The full path to a file from the JWST pipeline
+    other_stars : dict[str | SkyCoord] = {}
+      a dictionary of other sources in the sky. These coordinates will be
+      propagated to the midtime of the exposure given above; as such, they must
+      have proper motions and an epoch (ideally a distance, as well). See the
+      astropy documentation for SkyCoord.
+    **kwargs
+      any other keywords for Whippot that will not be set by a data file (i.e.
+      filter aperture names, showing diffraction spikes). See ComputePositions
+      documentation. Can be set separately.
+
+    Output
+    ------
+    initial_values : {}
+      a dictionary that can initialize a whippot instance
+
+    """
+    hdr0 = fits.getheader(exposure_file, 0)
+    hdr1 = fits.getheader(exposure_file, 1)
+
+    initial_values={
+        'instr': hdr0['INSTRUME'],
+        'sci_aper': hdr0['APERNAME'],
+        'pa': hdr1['ROLL_REF'],
+        'sci_label': 'Ref. pos.',
+        'sci_ra': hdr0['TARG_RA'], 'sci_dec': hdr0['TARG_DEC'],
+    }
+
+    # if other_stars are given, propagate their positions to the midpoint of the exposure
+    time_obs = Time(hdr0['EXPMID'], format='mjd')
+    # make a new dictionary so you don't change the other_stars values in-place
+    propagated_stars = ""
+    for label, pos in other_stars.items():
+        new_pos = pos.apply_space_motion(new_obstime=time_obs)
+        propagated_stars += f"{label}: ({pos.ra.deg}, {pos.dec.deg})\n"
+    initial_values['other_stars'] = propagated_stars
+
+    # any other keywords
+    for k, v in kwargs.items():
+        initial_values[k] = v
+
+    return initial_values

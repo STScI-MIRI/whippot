@@ -197,6 +197,17 @@ re-compute with different values. However, in this case it must be called with
 the `update_params_from_widgets=True` argument to prevent being overridden by
 the (hidden) widget values.
 
+
+### Matching an existing observation
+
+If you already have an exposure and you wish to overplot your catalog, you can
+use the helper function `whippot_tools.intialize_from_file(jwst_file.fits,
+catalog)`. This configures an initialization dictionary to match the appropriate
+exposure parameters, and you can pass this dictionary along to the
+`ComputePositions()` initialization. Pass in your catalog as a dictionary of
+(label, `astropy.coordinates.SkyCoord`) pairs, with the proper motion defined.
+WHIPPOT will propagate the coordinates to the observing epoch (EXPMID keyword).
+
 ### Modules for specific observing modes
 
 While the basic WHIPPOT interface works with any aperture on Webb, a few
