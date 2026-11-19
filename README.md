@@ -447,3 +447,11 @@ We get by with a little help from our friends.
 [^3]: https://stpsf.readthedocs.io/en/latest/
 
 [^4]: https://pysiaf.readthedocs.io/
+
+
+## Wishlist
+Here is a record of possible future features:
+- The figures display properly in the UI in the notebook, instead of as pop-ups
+- Add the option to add or remove SIAF apertures to the plot
+- Dynamically update the plot as you rotate the PA
+- Instead of having the user import separate classes for different observing modes, be able to select the observing mode class from the central UI
