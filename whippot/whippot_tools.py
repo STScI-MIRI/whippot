@@ -43,6 +43,8 @@ class ComputePositions():
           'filter_apertures' : True,
           'show_diffraction_spikes': False,
           'diff_spike_len': 4.,
+          'final_idl_x': 0.0,
+          'final_idl_y': 0.0,
         }
         """
         self._initial_values = initial_values.copy()
@@ -83,6 +85,8 @@ class ComputePositions():
           'filter_apertures' : True,
           'show_diffraction_spikes' : False,
           'diff_spike_len': 4., 
+          'final_idl_x': 0.0,
+          'final_idl_y': 0.0,
         }
         return defaults
 
@@ -814,6 +818,8 @@ def initialize_from_file(
         'pa': hdr1['ROLL_REF'],
         'sci_label': 'Ref. pos.',
         'sci_ra': hdr0['TARG_RA'], 'sci_dec': hdr0['TARG_DEC'],
+        'final_idl_x': hdr0['XOFFSET'],
+        'final_idl_y': hdr0['YOFFSET'],
     }
 
     # if other_stars are given, propagate their positions to the midpoint of the exposure
